@@ -1,0 +1,43 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPage.master.cs" Inherits="MasterPage" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <title></title>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div style="border:solid;border-width:1px;width=1000px">
+            <table style="width:1visua00%">
+                <tr>
+                    <td style="width:15%;text-align:left"> Team Logo </td>
+                    <td style="width:70%;text-align:center"> Team Name will go here </td>
+                     <td style="width:15%;text-align:right"> Team Logo </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a runat="server" href="~/">Home</a></li>
+                        <li><a runat="server" href="~/About">About</a></li>
+                        <li><a runat="server" href="~/Contact">Contact</a></li>
+                    </ul>
+                </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+        <div id="dvfooter">
+            <h1>*** Created for demonstration ****
+            </h1>
+        </div>
+    </form>
+</body>
+</html>

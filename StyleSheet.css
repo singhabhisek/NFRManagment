@@ -1,0 +1,272 @@
+﻿body {
+    font-family: Arial;
+    font-size: 10pt;
+}
+
+table {
+    border: 1px solid #ccc;
+    border-collapse: collapse;
+    background-color: #fff;
+}
+
+    table th {
+        background-color: #B8DBFD;
+        color: #333;
+        font-weight: bold;
+    }
+
+    table th, table td {
+        padding: 5px;
+        border: 1px solid #ccc;
+    }
+
+    table, table table td {
+        border: 0px solid #ccc;
+    }
+
+.select-dropdown,
+.select-dropdown * {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.select-dropdown {
+    position: relative;
+    /*background-color: #E6E6E6;*/
+    border-radius: 4px;
+    top: 0px;
+    left: 0px;
+    height: 27px;
+    width: 94px;
+}
+
+    .select-dropdown select {
+        font-size: 1rem;
+        font-weight: normal;
+        max-width: 100%;
+        padding: 8px 24px 8px 10px;
+        border: none;
+        background-color: transparent;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+        .select-dropdown select:active, .select-dropdown select:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+    .select-dropdown:after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        width: 0;
+        height: 0;
+        margin-top: -2px;
+        border-top: 5px solid #aaa;
+        border-right: 5px solid transparent;
+        border-left: 5px solid transparent;
+    }
+
+.auto-style1 {
+    height: 52px;
+}
+
+.auto-style3 {
+    height: 52px;
+    width: 171px;
+}
+
+.auto-style4 {
+    left: 0px;
+    top: 0px;
+    width: 166px;
+    height: 25px;
+}
+
+.auto-style6 {
+    height: 52px;
+    width: 141px;
+}
+
+
+/*DATAGRIDVIEW Design*/
+.mydatagrid {
+    width: 80%;
+    border: solid 2px black;
+    min-width: 80%;
+}
+
+.header {
+    background-color: #000;
+    font-family: Arial;
+    color: White;
+    height: 25px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.rows {
+    background-color: #fff;
+    font-family: Arial;
+    font-size: 14px;
+    color: #000;
+    min-height: 25px;
+    text-align: left;
+}
+
+    .rows:hover {
+        background-color: #5badff;
+        color: #fff;
+    }
+
+
+/*.mydatagrid a*/ /** FOR THE PAGING ICONS **/ /*{
+            background-color: Transparent;
+            padding: 5px 5px 5px 5px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            }
+
+            .mydatagrid a:hover*/ /** FOR THE PAGING ICONS HOVER STYLES**/ /*{
+                background-color: #000;
+                color: #fff;
+            }
+
+        .mydatagrid span*/ /** FOR THE PAGING ICONS CURRENT PAGE INDICATOR **/ /*{
+            background-color: #fff;
+            color: #000;
+            padding: 5px 5px 5px 5px;
+        }
+
+        .pager {
+            background-color: #5badff;
+            font-family: Arial;
+            color: White;
+            height: 30px;
+            text-align: left;
+        }*/
+
+.mydatagrid td {
+    padding: 5px;
+}
+
+.mydatagrid th {
+    padding: 5px;
+}
+
+/*.gridpager td table{
+             margin-right:20px;
+        }*/
+
+/*NEW*/
+/*.pagination-ys {*/
+/*display: inline-block;*/
+/*padding-left: 0;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+            .pagination-ys table > tbody > tr > td {
+                display: inline;
+            }
+
+                .pagination-ys table > tbody > tr > td > a,
+                .pagination-ys table > tbody > tr > td > span {
+                    position: relative;
+                    float: left;
+                    padding: 8px 12px;
+                    line-height: 1.42857143;
+                    text-decoration: none;
+                    color: #dd4814;
+                    background-color: #ffffff;
+                    border: 1px solid #dddddd;
+                    margin-left: -1px;
+                }
+
+                .pagination-ys table > tbody > tr > td > span {
+                    position: relative;
+                    float: left;
+                    padding: 8px 12px;
+                    line-height: 1.42857143;
+                    text-decoration: none;
+                    margin-left: -1px;
+                    z-index: 2;
+                    color: #aea79f;
+                    background-color: #f5f5f5;
+                    border-color: #dddddd;
+                    cursor: default;
+                }
+                
+                .pagination-ys table > tbody > tr > td:first-child > a,
+                .pagination-ys table > tbody > tr > td:first-child > span {
+                    margin-left: 0;
+                    border-bottom-left-radius: 4px;
+                    border-top-left-radius: 4px;
+                }
+
+                .pagination-ys table > tbody > tr > td:last-child > a,
+                .pagination-ys table > tbody > tr > td:last-child > span {
+                    border-bottom-right-radius: 4px;
+                    border-top-right-radius: 4px;
+                }
+
+                .pagination-ys table > tbody > tr > td > a:hover,
+                .pagination-ys table > tbody > tr > td > span:hover,
+                .pagination-ys table > tbody > tr > td > a:focus,
+                .pagination-ys table > tbody > tr > td > span:focus {
+                    color: #97310e;
+                    background-color: #eeeeee;
+                    border-color: #dddddd;
+                }*/
+
+/*gridview*/
+.table table tbody tr td a,
+.table table tbody tr td span {
+    position: relative;
+    float: left;
+    padding: 6px 12px;
+    margin-left: -1px;
+    line-height: 1.42857143;
+    color: #337ab7;
+    text-decoration: none;
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+.table table > tbody > tr > td > span {
+    z-index: 3;
+    color: #fff;
+    cursor: default;
+    background-color: #337ab7;
+    border-color: #337ab7;
+}
+
+.table table > tbody > tr > td:first-child > a,
+.table table > tbody > tr > td:first-child > span {
+    margin-left: 0;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.table table > tbody > tr > td:last-child > a,
+.table table > tbody > tr > td:last-child > span {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.table table > tbody > tr > td > a:hover,
+.table table > tbody > tr > td > span:hover,
+.table table > tbody > tr > td > a:focus,
+.table table > tbody > tr > td > span:focus {
+    z-index: 2;
+    color: #23527c;
+    background-color: #eee;
+    border-color: #ddd;
+}
+/*end gridview */
