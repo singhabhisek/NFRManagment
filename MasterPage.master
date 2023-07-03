@@ -1,43 +1,85 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPage.master.cs" Inherits="MasterPage" %>
 
+
 <!DOCTYPE html>
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title></title>
+    <!-- CSS -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css' />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <asp:ContentPlaceHolder ID="head" runat="server">
     </asp:ContentPlaceHolder>
 </head>
-<body>
+<body class="archive">
     <form id="form1" runat="server">
-        <div style="border:solid;border-width:1px;width=1000px">
-            <table style="width:1visua00%">
-                <tr>
-                    <td style="width:15%;text-align:left"> Team Logo </td>
-                    <td style="width:70%;text-align:center"> Team Name will go here </td>
-                     <td style="width:15%;text-align:right"> Team Logo </td>
-                </tr>
-                <tr>
-                    <td colspan="3">
-                        <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
-                        <li><a runat="server" href="~/">Home</a></li>
-                        <li><a runat="server" href="~/About">About</a></li>
-                        <li><a runat="server" href="~/Contact">Contact</a></li>
-                    </ul>
+        <!-- Header -->
+        <header class="hero overlay">
+
+            <div class="masthead single-masthead">
+                <div class="container">
+                    <div class="row">
+                    </div>
                 </div>
-                    </td>
-                </tr>
-            </table>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="row">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="col-lg-4">
+                    <div class="sidebar">
+
+                        <div class="pt-50">
+                            <div class="widget fix widget_categories">
+                                <asp:ContentPlaceHolder ID="ContentPlaceHolder2" runat="server">
+                                </asp:ContentPlaceHolder>
+                                <span class="icon icon-folder"></span>
+                                <h4>Popular Knowledgebase Topics</h4>
+                                <ul>
+                                    <li><a href="index.aspx">Modules </a></li>
+                                    <li><a href="Admin.aspx">Admin </a></li>
+                                    <li><a href="Staff_Mngmt.aspx">Staff Management </a></li>
+                                    <li><a href="Inventory.aspx">Inventory</a></li>
+                                    <li><a href="Quality.aspx">Quality </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        </td>
+                        <td>
+                            <div class="col-lg-8">
+
+                    <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+                    </asp:ContentPlaceHolder>
+                </div>
+                        </td>
+                    </tr>
+                </table>
+                
+                
+            </div>
         </div>
-        <div>
-            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
-            </asp:ContentPlaceHolder>
-        </div>
-        <div id="dvfooter">
-            <h1>*** Created for demonstration ****
-            </h1>
-        </div>
+        <footer>
+            <div class="container">
+                <div class="row">
+
+                    <div class="col-md-6"></div>
+                    <div class="col-lg-6 col-md-4 col-sm-12">
+                        <div class="copyright">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     </form>
 </body>
 </html>
