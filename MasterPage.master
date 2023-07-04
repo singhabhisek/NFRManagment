@@ -2,84 +2,103 @@
 
 
 <!DOCTYPE html>
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head runat="server">
     <title></title>
-    <!-- CSS -->
-    <link href='https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css' />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="Bootstrap.css" />
+   <%-- <link rel="stylesheet" href="StyleSheet.css" />--%>
+    <style>
+        body {font-family: "Lato", sans-serif;}
+
+
+        .sidebar {
+            height: 100%;
+            width: 160px;
+            position: fixed;
+            z-index: 1;
+            top: 55px;
+            /*left: 0;*/
+            background-color: brown;
+            overflow-x: hidden;
+            /*padding-top: 16px;*/
+        }
+
+            .sidebar a {
+                padding: 6px 0px 6px 0px;
+                text-decoration: none;
+                font-size: 10px;
+                color: #818181;
+                display: block;
+            }
+
+                .sidebar a:hover {
+                    color: #f1f1f1;
+                }
+
+        /*.main {
+            margin-left: 160px;*/ /* Same as the width of the sidenav */
+            /*padding: 0px 10px;
+        }*/
+        /*
+@media screen and (max-height: 450px) {
+  .sidebar {padding-top: 15px;}
+  .sidebar a {font-size: 18px;}
+}*/
+        .auto-style1 {
+            height: 45px;
+        }
+    </style>
+
     <asp:ContentPlaceHolder ID="head" runat="server">
     </asp:ContentPlaceHolder>
 </head>
-<body class="archive">
+<body>
     <form id="form1" runat="server">
-        <!-- Header -->
-        <header class="hero overlay">
 
-            <div class="masthead single-masthead">
-                <div class="container">
-                    <div class="row">
-                    </div>
-                </div>
-            </div>
-        </header>
+        <table style="width: 100%; left: 0">
+            <tr style="background-color: blueviolet">
+                <td class="auto-style1" style="left: 0px">
+                    <img src="Images/test_logo.png" width="100px" /></td>
+                <td class="auto-style1" style="left: 0px;text-align:center">
+                    <h3>Test Management System</h3>
+                </td>
+                <td class="auto-style1" style="left: 0px;text-align:right">
+                    <h6>Welcome Users</h6>
+                </td>
 
-        <div class="container">
-            <div class="row">
-                <table>
-                    <tr>
-                        <td>
-                            <div class="col-lg-4">
+            </tr>
+            <tr>
+                <td style="top: 80px; width: 160px">
                     <div class="sidebar">
 
-                        <div class="pt-50">
-                            <div class="widget fix widget_categories">
-                                <asp:ContentPlaceHolder ID="ContentPlaceHolder2" runat="server">
-                                </asp:ContentPlaceHolder>
-                                <span class="icon icon-folder"></span>
-                                <h4>Popular Knowledgebase Topics</h4>
-                                <ul>
-                                    <li><a href="index.aspx">Modules </a></li>
-                                    <li><a href="Admin.aspx">Admin </a></li>
-                                    <li><a href="Staff_Mngmt.aspx">Staff Management </a></li>
-                                    <li><a href="Inventory.aspx">Inventory</a></li>
-                                    <li><a href="Quality.aspx">Quality </a></li>
-                                </ul>
-                            </div>
-                        </div>
+                        <table style="background-color: rgba(0, 0, 0, 0);">
+                            <tr>
+                                <td>
+                                    <img src="Images/h.png" align="right" height="40px" />
+                                </td>
+                                <td>
+                                    <a href="ExcelUpload.aspx" align="left" style="text-align: left; font-size: 16px;">Home</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:10%; text-align: right;">
+                                    <img src="Images/h.png" align="right" height="40px;" />
+                                </td>
+                                <td style="width:90%; text-align: left;">
+                                    <a href="ExcelUpload.aspx" align="left" style="text-align: left; font-size: 16px;">Dashboard</a>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-                </div>
-                        </td>
-                        <td>
-                            <div class="col-lg-8">
 
+                </td>
+                <td colspan="2" style="top: 80px; text-align: left">
                     <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
                     </asp:ContentPlaceHolder>
-                </div>
-                        </td>
-                    </tr>
-                </table>
-                
-                
-            </div>
-        </div>
-        <footer>
-            <div class="container">
-                <div class="row">
+                </td>
+            </tr>
+        </table>
 
-                    <div class="col-md-6"></div>
-                    <div class="col-lg-6 col-md-4 col-sm-12">
-                        <div class="copyright">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
-
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     </form>
 </body>
 </html>
