@@ -35,7 +35,7 @@ public partial class _Default : System.Web.UI.Page
         
         string query = "select distinct [applicationName] from NFRProTable";
         BindDropDownList(ddlApplicationName, query, "applicationName", "applicationName", "-Select Application-");
-        ddlReleaseID.Items.Insert(0, new ListItem("-Select Release-", "0"));
+       // ddlReleaseID.Items.Insert(0, new ListItem("-Select Release-", "0"));
 
     }
 
@@ -45,7 +45,7 @@ public partial class _Default : System.Web.UI.Page
         string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         using (SqlConnection con = new SqlConnection(constr))
         {
-            using (SqlCommand cmd = new SqlCommand("SELECT ID, applicationName, releaseID, transactionNames, SLA, TPS, businessScenario, backendCall, callType FROM NFRProTable"))
+            using (SqlCommand cmd = new SqlCommand("SELECT a.[applicationName]       ,a.[transactionNames],     MAX(CASE WHEN releaseID='2023.M02' THEN SLA END) M02_SLA,     MAX(CASE WHEN releaseID='2023.M03' THEN SLA END) M03_SLA,     MAX(CASE WHEN releaseID='2023.M02' THEN TPS END) M02_TPS,     MAX(CASE WHEN releaseID='2023.M03' THEN TPS END) M03_TPS FROM [dbo].[NFRProTable] a where a.[transactionNames] = 'OLB_Login' GROUP BY a.[applicationName]       ,a.[transactionNames];"))
             {
                 using (SqlDataAdapter sda = new SqlDataAdapter())
                 {
@@ -126,8 +126,12 @@ public partial class _Default : System.Web.UI.Page
     protected void ddlApplicationName_SelectedIndexChanged(object sender, EventArgs e)
     {
         ddlReleaseID.Items.Clear();
+        ddlReleaseID1.Items.Clear();
+        ddlReleaseID2.Items.Clear();
         string query = string.Format("select distinct ReleaseID from NFRProTable where ApplicationName = '{0}'", ddlApplicationName.SelectedItem.Value);
         BindDropDownList(ddlReleaseID, query, "ReleaseID", "ReleaseID", "-Select ReleaseID-");
+        BindDropDownList(ddlReleaseID1, query, "ReleaseID", "ReleaseID", "-Select ReleaseID-");
+        BindDropDownList(ddlReleaseID2, query, "ReleaseID", "ReleaseID", "-Select ReleaseID-");
     }
 
     private void BindDropDownList(DropDownList ddl, string query, string text, string value, string defaultText)
@@ -147,7 +151,7 @@ public partial class _Default : System.Web.UI.Page
                 con.Close();
             }
         }
-        ddl.Items.Insert(0, new ListItem("-All-", "0"));
+       // ddl.Items.Insert(0, new ListItem("-All-", "0"));
         ddl.Items.Insert(0, new ListItem(defaultText, "0"));
     }
 
@@ -224,10 +228,35 @@ public partial class _Default : System.Web.UI.Page
         }
     }
 
+
     protected void btnSubmit_Click(object sender, EventArgs e)
     {
+        if (ddlReleaseID.SelectedIndex < 1 && ddlReleaseID1.SelectedIndex < 1 && ddlReleaseID2.SelectedIndex < 1)
+        {
+            lblError.Text = "Select First Release Item";
+            ddlReleaseID.Focus();
+        }
+
+        else if ((ddlReleaseID.SelectedIndex > 0 
+            && ddlReleaseID.SelectedValue.ToString() == ddlReleaseID1.SelectedValue.ToString()) ||
+            (ddlReleaseID.SelectedIndex > 0 &&
+                ddlReleaseID.SelectedValue.ToString() == ddlReleaseID2.SelectedValue.ToString()) ||
+            (ddlReleaseID1.SelectedIndex > 0 &&
+                ddlReleaseID1.SelectedValue.ToString() == ddlReleaseID2.SelectedValue.ToString())
+            )
+        {
+            lblError.Text = "Error: Release Values cannot be same. Please check and change it.";
+            fillEmptyDatatable();
+            ddlReleaseID1.SelectedIndex= 0;
+            ddlReleaseID2.SelectedIndex= 0;
+            ddlReleaseID1.Focus();
+
+        }
+        else
+        {
+            BindGrid();
+        }
         
-        BindGrid();
     }
 
     private void BindGrid()
@@ -235,32 +264,43 @@ public partial class _Default : System.Web.UI.Page
         string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         using (SqlConnection con = new SqlConnection(constr))
         {
-            String strSearch;
+            String strSearch = "";
+            
             using (SqlCommand cmd = new SqlCommand())
             {
-                if (ddlApplicationName.SelectedIndex>0)
+                if (ddlReleaseID.SelectedIndex > 0)
                 {
-                    strSearch = "SELECT * FROM [NFRProTable]";
-                }
-                else
-                {
-                    strSearch = "SELECT * FROM [NFRProTable] where 1=2";
-                }
-                if (ddlApplicationName.SelectedIndex > 0)
-                {
-                    strSearch = strSearch + "WHERE [applicationName]=@applicationName";
-                    cmd.Parameters.AddWithValue("applicationName", this.ddlApplicationName.Text);
-
-                    if (ddlReleaseID.SelectedIndex > 0)
+                    if (ddlReleaseID1.SelectedIndex > 0)
                     {
-                        strSearch = strSearch + " AND [releaseID]=@releaseID";
-                        cmd.Parameters.AddWithValue("releaseID", this.ddlReleaseID.Text);
+                        if (ddlReleaseID2.SelectedIndex > 0)
+                        {
+                            strSearch = "SELECT a.[applicationName],a.[transactionNames], ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "'_SLA, ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRProTable] a";  
+                        }
+                        else
+                        {
+                            strSearch = "SELECT a.[applicationName], a.[transactionNames], ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" +  ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString()  + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRProTable] a ";
+                        }
                     }
+                    else
+                    {
+                        strSearch = "SELECT a.[applicationName] ,a.[transactionNames], ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA',     ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "'  THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRProTable] a ";
 
+
+                    }
+                }
+                
+
+
+                
+
+                if (ddlApplicationName.SelectedIndex > 0 && ddlReleaseID.SelectedIndex > 0)
+                {
+                    strSearch = strSearch + " WHERE applicationName = @applicationName ";
+                    cmd.Parameters.AddWithValue("applicationName", ddlApplicationName.SelectedValue.ToString());
                     if (txtTransactionName.Text.Length > 0)
                     {
                         String textSearch;
-                        textSearch= txtTransactionName.Text;
+                        textSearch = txtTransactionName.Text;
                         if (txtTransactionName.Text.EndsWith("*"))
                         {
                             textSearch = txtTransactionName.Text.Remove(txtTransactionName.Text.Length - 1);
@@ -270,21 +310,56 @@ public partial class _Default : System.Web.UI.Page
                     }
 
                 }
+                else
+                {
+                    if (txtTransactionName.Text.Length > 0)
+                    {
+                        String textSearch;
+                        textSearch = txtTransactionName.Text;
+                        if (txtTransactionName.Text.EndsWith("*"))
+                        {
+                            textSearch = txtTransactionName.Text.Remove(txtTransactionName.Text.Length - 1);
+                        }
+                        strSearch = strSearch + " WHERE [transactionNames] like '%' + @transactionNames + '%'";
+                        cmd.Parameters.AddWithValue("transactionNames", textSearch);
+                    }
+                }
 
-                cmd.CommandText = strSearch;
-                //create parameters with specified name and values
-                cmd.Connection = con;
+               lblError.Text = strSearch;
 
                 DataTable dt = new DataTable();
-                using (SqlDataAdapter sda = new SqlDataAdapter(cmd))
+                
+                
+                if (strSearch.Length < 1)
                 {
-                    sda.Fill(dt);
+                    strSearch = "SELECT * FROM [NFRProTable] where 1=2";
+                    dt.Columns.Add("applicationName");
+                    dt.Columns.Add("transactionName");
+                    dt.Columns.Add("Release1_SLA");
+                    dt.Columns.Add("Release1_TPS");
+                    dt.Columns.Add("Release2_SLA");
+                    dt.Columns.Add("Release2_TPS");
+                    
                 }
+                else
+                {
+                    //"where a.[transactionNames] = 'OLB_Login' ";
+                    strSearch = strSearch + "GROUP BY a.[applicationName],a.[transactionNames];";
+                    cmd.CommandText = strSearch;
+                    //create parameters with specified name and values
+                    cmd.Connection = con;
+
+                    using (SqlDataAdapter sda = new SqlDataAdapter(cmd))
+                    {
+                        sda.Fill(dt);
+                    }
+                }
+                
                 //retrive data
 
                 if (dt.Rows.Count == 0)
                 {
-                    GridView1.DataSource = new List<string>();
+                    GridView1.DataSource = dt; // new List<string>();
                     GridView1.DataBind();
                     //this.Label1.Text = "No Data Found";
                     //return;
@@ -305,14 +380,57 @@ public partial class _Default : System.Web.UI.Page
 
     }
 
+    protected void ddlReleaseID_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if(ddlReleaseID.SelectedIndex > 0)
+        {
+            lblError.Text = "";
+        }
+        //ddlReleaseID1.Items.FindByValue(ddlReleaseID.SelectedValue.ToString()).Attributes.Add("disabled", "disabled");
+        //ddlReleaseID2.Items.FindByValue(ddlReleaseID.SelectedValue.ToString()).Attributes.Add("disabled", "disabled");
+
+        // ddlReleaseID1.Items.Remove(ddlReleaseID.SelectedValue.ToString());
+        // ddlReleaseID2.Items.Remove(ddlReleaseID.SelectedValue.ToString());
+    }
+
+    protected void ddlReleaseID1_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        //ddlReleaseID2.Items.FindByValue(ddlReleaseID.SelectedValue.ToString()).Attributes.Add("disabled", "disabled");
+        //ddlReleaseID2.Items.FindByValue(ddlReleaseID1.SelectedValue.ToString()).Attributes.Add("disabled", "disabled");
+    }
+    public void fillEmptyDatatable()
+    {
+        DataTable dt = new DataTable();
+        dt.Columns.Add("applicationName");
+        dt.Columns.Add("transactionName");
+        dt.Columns.Add("Release1_SLA");
+        dt.Columns.Add("Release1_TPS");
+        dt.Columns.Add("Release2_SLA");
+        dt.Columns.Add("Release2_TPS");
+        GridView1.DataSource = dt; // new List<string>();
+        GridView1.DataBind();
+        
+    }
+
+    public void resetAll()
+    {
+        fillEmptyDatatable();
+        ddlReleaseID.Items.Clear();
+        ddlReleaseID1.Items.Clear();
+        ddlReleaseID2.Items.Clear();
+        ddlApplicationName.SelectedIndex= 0;
+        ddlReleaseID.SelectedIndex= -1;
+        ddlReleaseID1.SelectedIndex = -1;
+        ddlReleaseID2.SelectedIndex = -1;
+        txtTransactionName.Text = "";
+        lblError.Text = "";
+        ddlApplicationName.Focus();
+    }
+
+
     protected void btnClear_Click(object sender, EventArgs e)
     {
-        ddlApplicationName.SelectedIndex= 0;
-        ddlReleaseID.Items.Clear();
-        txtTransactionName.Text = "";
-        GridView1.DataSource = new List<string>();
-        GridView1.DataBind();
-
+        resetAll();
     }
 
     protected void GridView1_PreRender(object sender, EventArgs e)

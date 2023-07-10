@@ -60,7 +60,7 @@
                     <td colspan="3" align="right">
                         <asp:Button ID="btnSubmit" runat="server" Text="Search Records" OnClick="btnSubmit_Click" /></td>
                     <td colspan="3" align="left">
-                        <asp:Button ID="btnClear" runat="server" Text="Clear Records" /></td>
+                        <asp:Button ID="btnClear" runat="server" Text="Clear Records" OnClick="btnClear_Click" /></td>
                 </tr>
 
                 <br />
@@ -83,7 +83,7 @@
                         <asp:GridView ID="GridView1" Width="1000px" ShowHeaderWhenEmpty="True" EmptyDataText="No records Found" runat="server" AutoGenerateColumns="False" AllowPaging="True"
                             OnPageIndexChanging="OnPageIndexChanging" OnRowCancelingEdit="GridView1_RowCancelingEdit" OnRowDeleting="GridView1_RowDeleting" OnRowEditing="GridView1_RowEditing" OnRowUpdating="GridView1_RowUpdating"
                             CssClass="table table-striped table-bordered table-hover"
-                            DataKeyNames="ID" enablepagingandcallback="false" PageSize="2" OnRowDataBound="GridView1_RowDataBound">
+                            DataKeyNames="ID" enablepagingandcallback="false" PageSize="2" OnRowDataBound="GridView1_RowDataBound" OnPreRender="GridView1_PreRender">
                             <PagerStyle CssClass="pagination-ys" HorizontalAlign="Right" />
 
                             <PagerSettings Mode="Numeric" FirstPageText="First" PreviousPageText="Previous" NextPageText="Next" LastPageText="Last" />
