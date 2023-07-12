@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+    <link rel="stylesheet" href="Ultimate.css" />
+    <style>
+
+
+        .is-invalid ~ .invalid-feedback, .is-invalid ~ .invalid-tooltip, .was-validated :invalid ~ .invalid-feedback, .was-validated :invalid ~ .invalid-tooltip {
+            display: block
+        }
+
+        .form-control.is-invalid, .was-validated .form-control:invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + .75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(.375em + .1875rem) center;
+            background-size: calc(.75em + .375rem) calc(.75em + .375rem)
+        }
+
+            .form-control.is-invalid:focus, .was-validated .form-control:invalid:focus {
+                border-color: #dc3545;
+                box-shadow: 0 0 0 .25rem rgba(220,53,69,.25)
+            }
+
+        .was-validated textarea.form-control:invalid, textarea.form-control.is-invalid {
+            padding-right: calc(1.5em + .75rem);
+            background-position: top calc(.375em + .1875rem) right calc(.375em + .1875rem)
+        }
+
+        .form-select.is-invalid, .was-validated .form-select:invalid {
+            border-color: #dc3545
+        }
+
+            .form-select.is-invalid:not([multiple]):not([size]), .form-select.is-invalid:not([multiple])[size="1"], .was-validated .form-select:invalid:not([multiple]):not([size]), .was-validated .form-select:invalid:not([multiple])[size="1"] {
+                padding-right: 4.125rem;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e"),url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+                background-position: right .75rem center,center right 2.25rem;
+                background-size: 16px 12px,calc(.75em + .375rem) calc(.75em + .375rem)
+            }
+
+            .form-select.is-invalid:focus, .was-validated .form-select:invalid:focus {
+                border-color: #dc3545;
+                box-shadow: 0 0 0 .25rem rgba(220,53,69,.25)
+            }
+
+        .form-check-input.is-invalid, .was-validated .form-check-input:invalid {
+            border-color: #dc3545
+        }
+
+            .form-check-input.is-invalid:checked, .was-validated .form-check-input:invalid:checked {
+                background-color: #dc3545
+            }
+
+            .form-check-input.is-invalid:focus, .was-validated .form-check-input:invalid:focus {
+                box-shadow: 0 0 0 .25rem rgba(220,53,69,.25)
+            }
+
+            .form-check-input.is-invalid ~ .form-check-label, .was-validated .form-check-input:invalid ~ .form-check-label {
+                color: #dc3545
+            }
+
+        .form-check-inline .form-check-input ~ .invalid-feedback {
+            margin-left: .5em
+        }
+
+        .input-group .form-control.is-invalid, .input-group .form-select.is-invalid, .was-validated .input-group .form-control:invalid, .was-validated .input-group .form-select:invalid {
+            z-index: 2
+        }
+
+            .input-group .form-control.is-invalid:focus, .input-group .form-select.is-invalid:focus, .was-validated .input-group .form-control:invalid:focus, .was-validated .input-group .form-select:invalid:focus {
+                z-index: 3
+            }
+
+
+    </style>
+</head>
+<body>
+    <div class="row g-2">
+        <div class="col-md">
+            <div style="margin-left:600px;top:200px;" class="form-floating mb-3">
+                <input type="email" style="width:200px;height:15px;" class="form-control" id="floatingInput" placeholder="name@example.com">
+                <label for="floatingInput">Email address</label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div style="margin-left:600px;top:200px;" class="form-floating">
+                <input type="email" style="width:200px;height:15px;" class="form-control is-invalid" id="floatingInputInvalid" placeholder="name@example.com" value="test@example.com">
+                <label for="floatingInputInvalid">Invalid input</label>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-left:600px;top:200px;" class="form-floating">
+        <select class="form-select" id="floatingSelect" style="width:225px;" aria-label="Floating label select example">
+            <option selected>Open this select menu</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+        </select>
+        <label for="floatingSelect">Works with selects</label>
+    </div>
+
+
+
+
+</body>
+</html>

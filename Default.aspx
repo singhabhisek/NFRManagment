@@ -6,8 +6,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>GridView Paging Example</title>
-    <link rel="stylesheet" href="Bootstrap.css" />
-    <link rel="stylesheet" href="StyleSheet.css" />
+<%--    <link rel="stylesheet" href="Bootstrap.css" />--%>
+    <link rel="stylesheet" href="Ultimate.css" />
     <style type="text/css">
         
     </style>
@@ -58,7 +58,7 @@
                 </tr>
                 <tr>
                     <td colspan="3" align="right">
-                        <asp:Button ID="btnSubmit" runat="server" Text="Search Records" OnClick="btnSubmit_Click" /></td>
+                        <asp:Button ID="btnSubmit" runat="server" CssClass="btn-primary" Text="Search Records" OnClick="btnSubmit_Click" /></td>
                     <td colspan="3" align="left">
                         <asp:Button ID="btnClear" runat="server" Text="Clear Records" OnClick="btnClear_Click" /></td>
                 </tr>
@@ -71,7 +71,7 @@
                         <asp:ImageButton ID="btnImportExcel" runat="server" ImageUrl="~/Images/test_logo.png" AlternateText="Import Excel to application" Height="28px" OnClientClick="javascript:popupwindow('ExcelUpload.aspx', '_blank', 600, 400)" />
                     </td>
                     <td colspan="1" align="right">
-                        <asp:ImageButton ID="btnExportExcel" runat="server" ImageUrl="~/Images/test_logo.png" AlternateText="Export to Excel" Height="28px" OnClick="btnExportExcel_Click" />
+                        <asp:ImageButton ID="btnExportExcel" runat="server" ImageUrl="~/Images/Picture1.png" AlternateText="Export to Excel" Height="28px" OnClick="btnExportExcel_Click" />
                     </td>
 
                 </tr>
@@ -82,13 +82,13 @@
                     <td colspan="6">
                         <asp:GridView ID="GridView1" Width="1000px" ShowHeaderWhenEmpty="True" EmptyDataText="No records Found" runat="server" AutoGenerateColumns="False" AllowPaging="True"
                             OnPageIndexChanging="OnPageIndexChanging" OnRowCancelingEdit="GridView1_RowCancelingEdit" OnRowDeleting="GridView1_RowDeleting" OnRowEditing="GridView1_RowEditing" OnRowUpdating="GridView1_RowUpdating"
-                            CssClass="table table-striped table-bordered table-hover"
+                            CssClass="table table-striped table-bordered table-hover gvstyling th tr"
                             DataKeyNames="ID" enablepagingandcallback="false" PageSize="2" OnRowDataBound="GridView1_RowDataBound" OnPreRender="GridView1_PreRender">
-                            <PagerStyle CssClass="pagination-ys" HorizontalAlign="Right" />
+                            <PagerStyle HorizontalAlign="Right" />
 
                             <PagerSettings Mode="Numeric" FirstPageText="First" PreviousPageText="Previous" NextPageText="Next" LastPageText="Last" />
                             <Columns>
-                                <asp:BoundField ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="applicationName" HeaderText="Application Name">
+                                <asp:BoundField HeaderStyle-CssClass="gvstyling"  ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="applicationName" HeaderText="Application Name">
                                     <ItemStyle HorizontalAlign="Center" Width="200px"></ItemStyle>
                                 </asp:BoundField>
                                 <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="releaseID" HeaderText="Release Id">
