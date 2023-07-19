@@ -21,6 +21,10 @@ public partial class ExcelUpload : System.Web.UI.Page
     {
         String exceptions = "";
 
+        int recordCount = 0;
+        int blankFieldRecordCount = 0;
+        int sqlExceptionRecordCount = 0;
+
         FileUpload_Msg.Text = "";
 
         if (FileUpload1.HasFile)
@@ -33,7 +37,6 @@ public partial class ExcelUpload : System.Web.UI.Page
             {
                 //String saveFolder = 
                 //Upload and save the file
-                int recordCount = 0;
                 string connExcelString = string.Empty;
                 string extension = Path.GetExtension(FileUpload1.PostedFile.FileName);
                 switch (extension)
@@ -121,8 +124,8 @@ public partial class ExcelUpload : System.Web.UI.Page
                                     {
                                         if (reader[0].ToString() == "" || reader[1].ToString() == "" || reader[2].ToString() == "" || reader[3].ToString() == "")
                                         {
-                                            fieldIncrementor++;
-                                            exceptions += "<br/>" + " One of the required values is blank or NULL in excel row - " + recordCount.ToString();
+                                            blankFieldRecordCount++;
+                                            exceptions += "<br/> Row# " + recordCount + ": One of the required values is blank or NULL in excel";
                                         }
                                         else
                                         {
@@ -144,8 +147,20 @@ public partial class ExcelUpload : System.Web.UI.Page
                                     }
                                     catch (SqlException sqlEx)
                                     {
-                                        fieldIncrementor++;
-                                        exceptions += "<br/>" + sqlEx.Message.ToString().Replace("PK_NFRProTable", "").Replace("dbo.NFRProTable", "");
+
+                                        sqlExceptionRecordCount++;
+                                        if (sqlEx.Number == 2627)
+                                        {
+                                            int pFrom = sqlEx.Message.IndexOf("key value is"); // + "key value is".Length;
+                                            int pTo = sqlEx.Message.LastIndexOf("statement") - 5;
+
+                                            String result = sqlEx.Message.Substring(pFrom, pTo - pFrom);
+                                            exceptions += "<br/> Row# " + recordCount + ": Duplicate " + result; 
+                                        }
+                                        else
+                                        {
+                                            exceptions += "<br/>" + sqlEx.Message.ToString();
+                                        }//exceptions += "<br/>" + sqlEx.Message.ToString().Replace("PK_NFRProTable", "").Replace("dbo.NFRProTable", "");
                                     }
                                 }
                                 // }
@@ -155,43 +170,24 @@ public partial class ExcelUpload : System.Web.UI.Page
                         }
                         reader.Close();
                     }
-                    if (fieldIncrementor > 0)
+                    if (blankFieldRecordCount > 0 || sqlExceptionRecordCount > 0)
                     {
                         //FileUpload_Msg.Text
                         exceptions = "File processed. Number of records: " + recordCount.ToString() +
-                                " <br/> Number or records skipped due to error:" + fieldIncrementor.ToString() + "<br/> Exceptions are: <br/>" + exceptions;
+                                " <br/> Number or records successfully inserted:" + (recordCount - blankFieldRecordCount - sqlExceptionRecordCount).ToString() +
+                                " <br/> Number or records skipped due to blank field error:" + blankFieldRecordCount.ToString() +
+                                " <br/> Number or records skipped due to SQL error:" + sqlExceptionRecordCount.ToString() +
+                                "<br/> Exceptions are: <br/>" + exceptions;
                     }
                     else
                     {
-                        FileUpload_Msg.Text = "File has been processed";
+                        exceptions = "File processed. Number of records: " + recordCount.ToString() +
+                                " <br/> Number or records successfully inserted:" + (recordCount - blankFieldRecordCount - sqlExceptionRecordCount).ToString();
+
+
                     }
 
-                    //using (SqlConnection con = new SqlConnection(connSqlString))
-                    //{
-                    //    using (SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(con))
-                    //    {
-                    //        //Set the database table name
-                    //        sqlBulkCopy.DestinationTableName = "NFRProTable";
 
-                    //        //[OPTIONAL]: Map the Excel columns with that of the database table
-                    //        sqlBulkCopy.ColumnMappings.Add("applicationName", "applicationName");
-                    //        sqlBulkCopy.ColumnMappings.Add("releaseID", "releaseID");
-                    //        sqlBulkCopy.ColumnMappings.Add("transactionNames", "transactionNames");
-                    //        sqlBulkCopy.ColumnMappings.Add("SLA", "SLA");
-                    //        sqlBulkCopy.ColumnMappings.Add("TPS", "TPS");
-                    //        sqlBulkCopy.ColumnMappings.Add("businessScenario", "businessScenario");
-                    //        sqlBulkCopy.ColumnMappings.Add("backendCall", "backendCall");
-                    //        sqlBulkCopy.ColumnMappings.Add("callType", "callType");
-                    //        con.Open();
-                    //        sqlBulkCopy.WriteToServer(dtExcelData);
-                    //        con.Close();
-                    //        FileUpload_Msg.Text= "File has been successfully uploaded";
-                    //        //string message = "File has been successfully uploaded";
-                    //        //string title = "Successful";
-
-                    //        //ClientScript.RegisterStartupScript(this.GetType(), "Popup", "ShowPopup('" + message + "','" + title + "');", true);
-                    //    }
-                    //}
                 }
             }
             catch (Exception ex)

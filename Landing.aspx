@@ -9,7 +9,7 @@
     </style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
-    <div style="margin-left: 20px">
+    <div>
         <b>Search Records</b>
         <table style="width: 1000px">
             <tr>
@@ -32,6 +32,7 @@
                 </td>
                 <td class="auto-style1">
                     <asp:TextBox ID="txtTransactionName" Width="90%" runat="server" CssClass="auto-style4"></asp:TextBox>
+                    <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" ControlToValidate="txtTransactionName" ErrorMessage="RegularExpressionValidator" ValidationExpression="^[\s\S]{3,}$"></asp:RegularExpressionValidator>
                 </td>
 
             </tr>

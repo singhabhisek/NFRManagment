@@ -263,7 +263,7 @@ public partial class Landing : System.Web.UI.Page
                         {
                             textSearch = txtTransactionName.Text.Remove(txtTransactionName.Text.Length - 1);
                         }
-                        strSearch = strSearch + " AND [transactionNames] like '%' + @transactionNames + '%'";
+                        strSearch = strSearch + " AND [transactionNames] like '%' + @transactionNames ";
                         cmd.Parameters.AddWithValue("transactionNames", textSearch);
                     }
 

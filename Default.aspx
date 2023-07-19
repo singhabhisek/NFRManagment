@@ -6,7 +6,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>GridView Paging Example</title>
-<%--    <link rel="stylesheet" href="Bootstrap.css" />--%>
+    <%--    <link rel="stylesheet" href="Bootstrap.css" />--%>
     <link rel="stylesheet" href="Ultimate.css" />
     <style type="text/css">
         
@@ -31,7 +31,7 @@
     <form id="form1" runat="server">
 
         <div style="margin-left: 20px">
-            <b>Search Records</b>
+            <b>Search Records (You can use %, _ as Wildcard in Search Transaction Text)</b>
             <table style="width: 1000px">
                 <tr>
                     <td class="auto-style6" align="center">
@@ -39,6 +39,7 @@
                     </td>
                     <td class="auto-style3">
                         <asp:DropDownList class="select-dropdown" ID="ddlApplicationName" runat="server" OnSelectedIndexChanged="ddlApplicationName_SelectedIndexChanged" AutoPostBack="true" CssClass="auto-style4"></asp:DropDownList>
+                        <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ControlToValidate="ddlApplicationName" ErrorMessage="*"  ForeColor="Red" InitialValue="0"></asp:RequiredFieldValidator>
                     </td>
 
                     <td class="auto-style6" align="center">
@@ -53,6 +54,7 @@
                     </td>
                     <td class="auto-style1">
                         <asp:TextBox ID="txtTransactionName" Width="90%" runat="server" CssClass="auto-style4"></asp:TextBox>
+                    <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" ControlToValidate="txtTransactionName" ErrorMessage="Minimum three character required" ValidationExpression="[\s\S]{3,}"></asp:RegularExpressionValidator>
                     </td>
 
                 </tr>
@@ -67,7 +69,11 @@
                 <br />
 
                 <tr>
-                    <td colspan="5" align="right">
+                    <td colspan="1" align="left">
+                        <asp:Label ID="Label3" runat="server" Text="Label"></asp:Label>
+
+                    </td>
+                    <td colspan="4" align="center">
                         <asp:ImageButton ID="btnImportExcel" runat="server" ImageUrl="~/Images/test_logo.png" AlternateText="Import Excel to application" Height="28px" OnClientClick="javascript:popupwindow('ExcelUpload.aspx', '_blank', 600, 400)" />
                     </td>
                     <td colspan="1" align="right">
@@ -88,7 +94,7 @@
 
                             <PagerSettings Mode="Numeric" FirstPageText="First" PreviousPageText="Previous" NextPageText="Next" LastPageText="Last" />
                             <Columns>
-                                <asp:BoundField HeaderStyle-CssClass="gvstyling"  ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="applicationName" HeaderText="Application Name">
+                                <asp:BoundField HeaderStyle-CssClass="gvstyling" ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="applicationName" HeaderText="Application Name">
                                     <ItemStyle HorizontalAlign="Center" Width="200px"></ItemStyle>
                                 </asp:BoundField>
                                 <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="releaseID" HeaderText="Release Id">
@@ -112,8 +118,9 @@
                                 <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="callType" HeaderText="Call Type">
                                     <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
                                 </asp:BoundField>
-                                <%--<asp:CommandField ShowEditButton="True" />
-                <asp:CommandField ShowDeleteButton="True" />--%>
+                            
+                                 <asp:CommandField ShowEditButton="True" />
+                <asp:CommandField ShowDeleteButton="True" />
                             </Columns>
 
                         </asp:GridView>
