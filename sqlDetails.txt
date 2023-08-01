@@ -1,0 +1,107 @@
+CREATE TABLE [dbo].[NFRDetails] (
+    [Id]               INT           IDENTITY (1, 1) NOT NULL,
+    [applicationName]  VARCHAR (255) NOT NULL,
+    [releaseID]        VARCHAR (255) NOT NULL,
+    [businessScenario] VARCHAR (255) NOT NULL,
+    [transactionNames] VARCHAR (255) NOT NULL,
+    [SLA]              FLOAT (53)    NULL,
+    [TPS]              FLOAT (53)    NULL,
+    [backendCall]      VARCHAR (255) NULL,
+    [callType]         VARCHAR (255) NULL,
+	createdBy		   VARCHAR (255) NOT NULL,
+	created_date DATETIME NOT NULL DEFAULT GETDATE(),
+	modifiedBy         VARCHAR (255) NULL,
+	modifed_date DATETIME
+    CONSTRAINT [PK_NFRDetails] PRIMARY KEY CLUSTERED ([applicationName], [transactionNames], [releaseID], [businessScenario])
+);
+
+
+
+CREATE TABLE [dbo].[credentials] (
+    [Id]       INT           IDENTITY (1, 1) NOT NULL,
+    [UserID] VARCHAR(50) NOT NULL,
+    [Password] VARCHAR(50) NOT NULL, 
+    CONSTRAINT [PK_credentials] PRIMARY KEY ([UserID])
+);
+
+
+
+
+
+CREATE TABLE [dbo].[UserRoles] (
+    [UserID] VARCHAR (50) NOT NULL,
+    [Roles]  VARCHAR (50) NOT NULL,
+    [Status] VARCHAR(50) NOT NULL, 
+    PRIMARY KEY CLUSTERED ([UserID] ASC)
+);
+
+
+
+
+
+CREATE PROCEDURE [dbo].[NFRDetails_InsertUpdate]
+		@applicationName varchar(255),
+		@releaseID varchar(255),
+		@businessScenario varchar(255),
+		@transactionNames varchar(255),
+		@SLA float,
+		@TPS float,
+		@backendCall varchar(255) = NULL,
+		@callType varchar(255) = NULL,
+		@createdBy varchar(255) ,
+		@modifiedBy varchar(255) = NULL,
+		@retValue varchar(255) OUT
+AS
+BEGIN
+      SET NOCOUNT ON;
+
+	
+	IF EXISTS(SELECT 1 FROM NFRDetails WHERE applicationName = @applicationName and releaseID = @releaseID)
+	BEGIN
+		UPDATE NFRDetails SET applicationName = @applicationName, 
+		releaseID = @releaseID, 
+		businessScenario = @businessScenario , 
+		transactionNames = @transactionNames, 
+		SLA = @SLA, 
+		TPS = @TPS, 
+		backendCall = @backendCall, 
+		callType = @callType,
+		modifiedBy = @modifiedBy,
+		modifed_date = GETDATE()
+		WHERE applicationName = @applicationName 
+		and releaseID = @releaseID
+
+		set @retValue = 'UPDATED'
+	END
+	ELSE
+	BEGIN
+		INSERT INTO NFRDetails([applicationName]
+           ,[releaseID]
+           ,[businessScenario]
+           ,[transactionNames]
+           ,[SLA]
+           ,[TPS]
+           ,[backendCall]
+           ,[callType],
+		   createdBy,
+		   created_date) VALUES 
+		   (@applicationName
+			,@releaseID
+			,@businessScenario
+			,@transactionNames
+			,@SLA
+			,@TPS
+			,@backendCall
+			,@callType,
+			@createdBy,
+			GETDATE())	
+			
+			set @retValue = 'INSERTED'
+	END   
+	
+END
+
+
+
+
+
