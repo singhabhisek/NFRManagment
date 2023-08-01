@@ -121,7 +121,7 @@ public partial class ExcelUpload : System.Web.UI.Page
                             recordCount++;
                             using (SqlConnection connection1 = new SqlConnection(connSqlString))
                             {
-                                //String queryInsert = "INSERT INTO [dbo].[NFRProTable] ([applicationName],[releaseID],[businessScenario],[transactionNames],[SLA],[TPS],[backendCall],[callType]) VALUES \r\n(@applicationName, @releaseID, @businessScenario, @transactionNames, @SLA, @TPS, @backendCall, @callType) ";
+                                //String queryInsert = "INSERT INTO [dbo].[NFRDetails] ([applicationName],[releaseID],[businessScenario],[transactionNames],[SLA],[TPS],[backendCall],[callType]) VALUES \r\n(@applicationName, @releaseID, @businessScenario, @transactionNames, @SLA, @TPS, @backendCall, @callType) ";
                                 using (SqlCommand cmd = new SqlCommand("NFRDetails_InsertUpdate", connection1))
                                 {
                                     {
@@ -174,7 +174,7 @@ public partial class ExcelUpload : System.Web.UI.Page
                                             else
                                             {
                                                 exceptions += "<br/>" + sqlEx.Message.ToString();
-                                            }//exceptions += "<br/>" + sqlEx.Message.ToString().Replace("PK_NFRProTable", "").Replace("dbo.NFRProTable", "");
+                                            }//exceptions += "<br/>" + sqlEx.Message.ToString().Replace("PK_NFRDetails", "").Replace("dbo.NFRDetails", "");
                                         }
                                     }
                                     // }

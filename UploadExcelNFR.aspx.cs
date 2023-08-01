@@ -14,11 +14,7 @@ public partial class UploadExcelNFR : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (!this.IsPostBack)
-        {
-            string script = "$(document).ready(function () { $('[id*=ContentPlaceHolder1_btnSubmit]').click(); });";
-            ClientScript.RegisterStartupScript(this.GetType(), "load", script, true);
-        }
+        
     }
 
     protected void Upload(object sender, EventArgs e)
@@ -124,7 +120,7 @@ public partial class UploadExcelNFR : System.Web.UI.Page
                             recordCount++;
                             using (SqlConnection connection1 = new SqlConnection(connSqlString))
                             {
-                                //String queryInsert = "INSERT INTO [dbo].[NFRProTable] ([applicationName],[releaseID],[businessScenario],[transactionNames],[SLA],[TPS],[backendCall],[callType]) VALUES \r\n(@applicationName, @releaseID, @businessScenario, @transactionNames, @SLA, @TPS, @backendCall, @callType) ";
+                                //String queryInsert = "INSERT INTO [dbo].[NFRDetails] ([applicationName],[releaseID],[businessScenario],[transactionNames],[SLA],[TPS],[backendCall],[callType]) VALUES \r\n(@applicationName, @releaseID, @businessScenario, @transactionNames, @SLA, @TPS, @backendCall, @callType) ";
                                 using (SqlCommand cmd = new SqlCommand("NFRDetails_InsertUpdate", connection1))
                                 {
                                     {
@@ -139,7 +135,8 @@ public partial class UploadExcelNFR : System.Web.UI.Page
                                             {
                                                 connection1.Open();
                                                 cmd.CommandType = CommandType.StoredProcedure;
-
+                                                String createdBy = "ABHISEK";
+                                                String updatedBy = "ABHISEK";
                                                 cmd.Parameters.Add("@applicationName", SqlDbType.VarChar, 255).Value = reader[0].ToString();
                                                 cmd.Parameters.Add("@releaseID", SqlDbType.VarChar, 255).Value = reader[1].ToString();
                                                 cmd.Parameters.Add("@businessScenario", SqlDbType.VarChar, 255).Value = reader[2].ToString();
@@ -148,6 +145,8 @@ public partial class UploadExcelNFR : System.Web.UI.Page
                                                 cmd.Parameters.Add("@TPS", SqlDbType.Float, 100).Value = reader[5].ToString();
                                                 cmd.Parameters.Add("@backendCall", SqlDbType.VarChar, 255).Value = reader[6].ToString();
                                                 cmd.Parameters.Add("@callType", SqlDbType.VarChar, 255).Value = reader[7].ToString();
+                                                cmd.Parameters.Add("@createdBy", SqlDbType.VarChar, 255).Value = createdBy;
+                                                cmd.Parameters.Add("@modifiedBy", SqlDbType.VarChar, 255).Value = updatedBy;
                                                 cmd.Parameters.Add("@retValue", SqlDbType.VarChar, 50);
                                                 cmd.Parameters["@retValue"].Direction = ParameterDirection.Output;
 
@@ -182,7 +181,7 @@ public partial class UploadExcelNFR : System.Web.UI.Page
                                             else
                                             {
                                                 exceptions += "<br/> Row# " + recordCount + "<br/>" + sqlEx.Message.ToString();
-                                            }//exceptions += "<br/>" + sqlEx.Message.ToString().Replace("PK_NFRProTable", "").Replace("dbo.NFRProTable", "");
+                                            }//exceptions += "<br/>" + sqlEx.Message.ToString().Replace("PK_NFRDetails", "").Replace("dbo.NFRDetails", "");
                                         }
                                         catch (Exception ex)
                                         {

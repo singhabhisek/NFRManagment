@@ -85,7 +85,7 @@ public partial class Dashboard : System.Web.UI.Page
     }
     private void BindApplicationDropdown()
     {
-        string query = "select distinct [applicationName] from NFRProTable";
+        string query = "select distinct [applicationName] from NFRDetails";
         BindDropDownList(ddlApplicationName, query, "applicationName", "applicationName", "-Select Application-");
         ddlReleaseID.Items.Insert(0, new ListItem("-Select Release-", "0"));
     }
@@ -110,7 +110,7 @@ public partial class Dashboard : System.Web.UI.Page
 
         using (SqlConnection con = new SqlConnection(constr))
         {
-            using (SqlCommand cmd = new SqlCommand("DELETE FROM NFRProTable WHERE Id = @Id"))
+            using (SqlCommand cmd = new SqlCommand("DELETE FROM NFRDetails WHERE Id = @Id"))
             {
                 cmd.Parameters.AddWithValue("@Id", Id);
                 cmd.Connection = con;
@@ -148,7 +148,7 @@ public partial class Dashboard : System.Web.UI.Page
 
         using (SqlConnection con = new SqlConnection(constr))
         {
-            using (SqlCommand cmd = new SqlCommand("UPDATE NFRProTable SET applicationName = @applicationName, releaseID = @releaseID , businessScenario = @businessScenario , transactionNames = @transactionNames  , SLA = @SLA  , TPS = @TPS  , backendCall = @backendCall  , callType = @callType  WHERE Id = @Id"))
+            using (SqlCommand cmd = new SqlCommand("UPDATE NFRDetails SET applicationName = @applicationName, releaseID = @releaseID , businessScenario = @businessScenario , transactionNames = @transactionNames  , SLA = @SLA  , TPS = @TPS  , backendCall = @backendCall  , callType = @callType  WHERE Id = @Id"))
             {
                 cmd.Parameters.AddWithValue("@Id", Id);
 
@@ -188,7 +188,7 @@ public partial class Dashboard : System.Web.UI.Page
         ddlReleaseID.Items.Clear();
 
         //Create Searach string and bind results to ReleaseID Dropdown
-        string query = string.Format("select distinct ReleaseID from NFRProTable where ApplicationName = '{0}'", ddlApplicationName.SelectedItem.Value);
+        string query = string.Format("select distinct ReleaseID from NFRDetails where ApplicationName = '{0}'", ddlApplicationName.SelectedItem.Value);
         BindDropDownList(ddlReleaseID, query, "ReleaseID", "ReleaseID", "-Select ReleaseID-");
 
         //Get the details for transactionName auto populate feature

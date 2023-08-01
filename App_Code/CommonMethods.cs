@@ -58,7 +58,7 @@ namespace CommonLibraryFunctions
                 conn.ConnectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
                 using (SqlCommand cmd = new SqlCommand())
                 {
-                    cmd.CommandText = "SELECT DISTINCT transactionNames FROM NFRProTable where " +
+                    cmd.CommandText = "SELECT DISTINCT transactionNames FROM NFRDetails where " +
                     "applicationName = @applicationName";
                     cmd.Parameters.AddWithValue("@applicationName", ApplicationName);
                     if (!string.IsNullOrEmpty(ReleaseID))
@@ -101,11 +101,11 @@ namespace CommonLibraryFunctions
                 {
                     if (ddlObjectName.SelectedIndex > 0)
                     {
-                        strSearch = "SELECT count(*) FROM [NFRProTable]";
+                        strSearch = "SELECT count(*) FROM [NFRDetails]";
                     }
                     else
                     {
-                        strSearch = "SELECT * FROM [NFRProTable] where 1=2";
+                        strSearch = "SELECT * FROM [NFRDetails] where 1=2";
                     }
                     if (ddlObjectName.SelectedIndex > 0)
                     {
@@ -139,11 +139,11 @@ namespace CommonLibraryFunctions
                 {
                     if (ddlApplicationName.SelectedIndex > 0)
                     {
-                        strSearch = "SELECT * FROM [NFRProTable]";
+                        strSearch = "SELECT * FROM [NFRDetails]";
                     }
                     else
                     {
-                        strSearch = "SELECT * FROM [NFRProTable] where 1=2";
+                        strSearch = "SELECT * FROM [NFRDetails] where 1=2";
                     }
                     if (ddlApplicationName.SelectedIndex > 0)
                     {
