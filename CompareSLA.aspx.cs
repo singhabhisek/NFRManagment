@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Web;
-using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using System.Data;
 using System.Data.SqlClient;
 using System.Configuration;
 using System.IO;
 using System.Drawing;
-using System.Activities.Expressions;
+using System.Text;
+using static CommonLibraryFunctions.CommonMethods;
 using System.Collections.Generic;
+using System.Linq;
+using System.Web.Services;
+using System.Web;
 
 public partial class _Default : System.Web.UI.Page
 {
@@ -39,35 +39,47 @@ public partial class _Default : System.Web.UI.Page
 
     }
 
+    //private void BindGrid1()
+    //{
+    //    string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+    //    using (SqlConnection con = new SqlConnection(constr))
+    //    {
+    //        using (SqlCommand cmd = new SqlCommand("SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name',     MAX(CASE WHEN releaseID='2023.M02' THEN SLA END) M02_SLA,     MAX(CASE WHEN releaseID='2023.M03' THEN SLA END) M03_SLA,     MAX(CASE WHEN releaseID='2023.M02' THEN TPS END) M02_TPS,     MAX(CASE WHEN releaseID='2023.M03' THEN TPS END) M03_TPS FROM [dbo].[NFRProTable] a where a.[transactionNames] = 'OLB_Login' GROUP BY a.[applicationName]       ,a.[transactionNames];"))
+    //        {
+    //            using (SqlDataAdapter sda = new SqlDataAdapter())
+    //            {
+    //                cmd.Connection = con;
+    //                sda.SelectCommand = cmd;
+    //                using (DataTable dt = new DataTable())
+    //                {
+    //                    sda.Fill(dt);
+    //                    
+    //                    GridView1.DataSource = dt;
+    //                    GridView1.DataBind();
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
-    private void BindGrid1()
+    protected void DropDownList1_SelectedIndexChanged(object sender, EventArgs e)
     {
-        string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-        using (SqlConnection con = new SqlConnection(constr))
-        {
-            using (SqlCommand cmd = new SqlCommand("SELECT a.[applicationName]       ,a.[transactionNames],     MAX(CASE WHEN releaseID='2023.M02' THEN SLA END) M02_SLA,     MAX(CASE WHEN releaseID='2023.M03' THEN SLA END) M03_SLA,     MAX(CASE WHEN releaseID='2023.M02' THEN TPS END) M02_TPS,     MAX(CASE WHEN releaseID='2023.M03' THEN TPS END) M03_TPS FROM [dbo].[NFRProTable] a where a.[transactionNames] = 'OLB_Login' GROUP BY a.[applicationName]       ,a.[transactionNames];"))
-            {
-                using (SqlDataAdapter sda = new SqlDataAdapter())
-                {
-                    cmd.Connection = con;
-                    sda.SelectCommand = cmd;
-                    using (DataTable dt = new DataTable())
-                    {
-                        sda.Fill(dt);
-                        Session["gridviewsouce"] = dt;
-                        GridView1.DataSource = dt;
-                        GridView1.DataBind();
-                    }
-                }
-            }
-        }
-    }
 
+        int size = int.Parse(ddlGridviewPaging.SelectedItem.Value.ToString());
+        GridView1.PageSize = size;
+        pageSize = size;
+        DataTable dt = Session["gridviewsourceCompare"] as DataTable;
+        
+        GridView1.DataSource = dt;
+        GridView1.DataBind();
+
+    }
 
     protected void OnPageIndexChanging(object sender, GridViewPageEventArgs e)
     {
         GridView1.PageIndex = e.NewPageIndex;
-        DataTable dt = Session["gridviewsouce"] as DataTable;
+        DataTable dt = Session["gridviewsourceCompare"] as DataTable;
+        totalRowCount = dt.Rows.Count;
         GridView1.DataSource = dt;
         GridView1.DataBind();
         //this.BindGrid();
@@ -91,7 +103,6 @@ public partial class _Default : System.Web.UI.Page
 
         GridView1.EditIndex = e.NewEditIndex;
         BindGrid();
-
 
     }
 
@@ -132,6 +143,7 @@ public partial class _Default : System.Web.UI.Page
         BindDropDownList(ddlReleaseID, query, "ReleaseID", "ReleaseID", "-Select ReleaseID-");
         BindDropDownList(ddlReleaseID1, query, "ReleaseID", "ReleaseID", "-Select ReleaseID-");
         BindDropDownList(ddlReleaseID2, query, "ReleaseID", "ReleaseID", "-Select ReleaseID-");
+        FillTransactionNameDT(ddlApplicationName.SelectedValue.ToString(), null, "TrxTableListCompare");
     }
 
     private void BindDropDownList(DropDownList ddl, string query, string text, string value, string defaultText)
@@ -211,8 +223,6 @@ public partial class _Default : System.Web.UI.Page
         ExportGridToExcel();
     }
 
-
-
     protected void GridView1_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.DataRow && e.Row.RowState == DataControlRowState.Edit)
@@ -224,13 +234,12 @@ public partial class _Default : System.Web.UI.Page
                 comments.Width = 100;
             }
 
-
         }
     }
 
-
     protected void btnSubmit_Click(object sender, EventArgs e)
     {
+        resetGridView(GridView1);
         if (ddlReleaseID.SelectedIndex < 1 && ddlReleaseID1.SelectedIndex < 1 && ddlReleaseID2.SelectedIndex < 1)
         {
             lblError.Text = "Select First Release Item";
@@ -274,24 +283,19 @@ public partial class _Default : System.Web.UI.Page
                     {
                         if (ddlReleaseID2.SelectedIndex > 0)
                         {
-                            strSearch = "SELECT a.[applicationName],a.[transactionNames], ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "'_SLA, ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRProTable] a";  
+                            strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "'_SLA, ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRProTable] a";  
                         }
                         else
                         {
-                            strSearch = "SELECT a.[applicationName], a.[transactionNames], ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" +  ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString()  + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRProTable] a ";
+                            strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" +  ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString()  + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRProTable] a ";
                         }
                     }
                     else
                     {
-                        strSearch = "SELECT a.[applicationName] ,a.[transactionNames], ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA',     ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "'  THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRProTable] a ";
-
+                        strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA',     ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "'  THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRProTable] a ";
 
                     }
                 }
-                
-
-
-                
 
                 if (ddlApplicationName.SelectedIndex > 0 && ddlReleaseID.SelectedIndex > 0)
                 {
@@ -325,16 +329,15 @@ public partial class _Default : System.Web.UI.Page
                     }
                 }
 
-               lblError.Text = strSearch;
+              // lblError.Text = strSearch;
 
                 DataTable dt = new DataTable();
-                
-                
+
                 if (strSearch.Length < 1)
                 {
                     strSearch = "SELECT * FROM [NFRProTable] where 1=2";
-                    dt.Columns.Add("applicationName");
-                    dt.Columns.Add("transactionName");
+                    dt.Columns.Add("Application Name");
+                    dt.Columns.Add("Transaction Name");
                     dt.Columns.Add("Release1_SLA");
                     dt.Columns.Add("Release1_TPS");
                     dt.Columns.Add("Release2_SLA");
@@ -351,6 +354,7 @@ public partial class _Default : System.Web.UI.Page
 
                     using (SqlDataAdapter sda = new SqlDataAdapter(cmd))
                     {
+                        
                         sda.Fill(dt);
                     }
                 }
@@ -366,7 +370,10 @@ public partial class _Default : System.Web.UI.Page
                 }
                 else
                 {
-                    Session["gridviewsouce"] = dt;
+                    totalRowCount = dt.Rows.Count;
+//                    pageSize = int.Parse(ddlGridviewPaging.SelectedItem.Value.ToString());
+
+                    Session["gridviewsourceCompare"] = dt;
                     GridView1.DataSource = dt;
                     GridView1.DataBind();
                 }
@@ -424,9 +431,10 @@ public partial class _Default : System.Web.UI.Page
         ddlReleaseID2.SelectedIndex = -1;
         txtTransactionName.Text = "";
         lblError.Text = "";
+        Session.Remove("TrxTableListCompare");
+        Session.Remove("gridviewsourceCompare");
         ddlApplicationName.Focus();
     }
-
 
     protected void btnClear_Click(object sender, EventArgs e)
     {
@@ -437,8 +445,134 @@ public partial class _Default : System.Web.UI.Page
     {
         GridView gv = (GridView)sender;
         GridViewRow pagerRow = (GridViewRow)gv.BottomPagerRow;
-
-        if (pagerRow != null && pagerRow.Visible == false)
+        if (pagerRow != null)
             pagerRow.Visible = true;
+        //if (pagerRow != null && pagerRow.Visible == false)
+        //    pagerRow.Visible = true;
     }
+
+    [WebMethod]
+    public static List<string> getTrxNames(string prefixText)
+    {
+        List<string> trxNames = new List<string>();
+        DataTable dt = HttpContext.Current.Session["TrxTableListCompare"] as DataTable;
+        trxNames = dt.AsEnumerable().Where(x => x.Field<String>("transactionNames").Contains(prefixText)).Select(x => x[0].ToString()).ToList();
+        if (trxNames.Count <= 0)
+        {
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                int result = 0;
+
+                result = LevenshteinDistance(dt.Rows[i][0].ToString(), prefixText);
+
+                if (result < 10)
+                {
+                    trxNames.Add(dt.Rows[i][0].ToString()); // + result.ToString()
+                }
+
+            }
+        }
+        return trxNames;
+    }
+
+    ////Added in 07/27
+    ///
+
+    protected override void OnPreRender(EventArgs e)
+    {
+        base.OnPreRender(e);
+        SetFixedHeightForGridIfRowsAreLess(GridView1);
+    }
+
+    //public void SetFixedHeightForGridIfRowsAreLess(GridView gv)
+    //{
+    //    double headerFooterHeight = gv.HeaderStyle.Height.Value + 35; //we set header height style=35px and there no footer  height so assume footer also same
+    //    double rowHeight = gv.RowStyle.Height.Value;
+    //    int gridRowCount = gv.Rows.Count;
+    //    if (gridRowCount <= gv.PageSize)
+    //    {
+    //        double height = (gridRowCount * rowHeight) + ((gv.PageSize - gridRowCount) * rowHeight) + headerFooterHeight;
+    //        //adjust footer height based on white space removal between footer and last row
+    //        height += 40;
+    //        gv.Height = new Unit(height);
+    //    }
+    //}
+
+    //public void createPagingSummaryOnPagerTemplate(object sender, int totalCount, int pageSize)
+    //{
+    //    GridView gv = sender as GridView;
+    //    if (gv != null)
+    //    {
+    //        //Get Bottom Pager Row from a gridview
+    //        GridViewRow row = gv.BottomPagerRow;
+
+    //        if (row != null)
+    //        {
+    //            //create new cell to add to page strip
+    //            TableCell pagingSummaryCell = new TableCell();
+    //            pagingSummaryCell.Text = DisplayCusotmPagingSummary(totalCount, gv.PageIndex, pageSize);
+    //            pagingSummaryCell.HorizontalAlign = HorizontalAlign.Right;
+    //            pagingSummaryCell.VerticalAlign = VerticalAlign.Middle;
+    //            pagingSummaryCell.Width = Unit.Percentage(100);
+    //            pagingSummaryCell.Height = Unit.Pixel(35);
+    //            //Getting table which shows PagingStrip
+    //            Table tbl = (Table)row.Cells[0].Controls[0];
+
+    //            gv.BottomPagerRow.Visible = true;
+    //            //BottomPagerRow will be visible false if pager doesn't have numbers and page number 1 will be displayed
+    //            //if (totalCount <= pageSize)
+    //            //{
+    //                //gv.BottomPagerRow.Visible = true;
+    //                //tbl.Rows[0].Cells.Clear();
+    //                //tbl.Width = Unit.Percentage(100);
+    //            //}
+    //            //Find table and add paging summary text
+    //            tbl.Rows[0].Cells.Add(pagingSummaryCell);
+    //            //assign header row color to footer row
+    //            //tbl.BackColor = Color.Red; // System.Drawing.ColorTranslator.FromHtml("#1AD9F2");
+    //            tbl.Width = Unit.Percentage(100);
+
+    //        }
+    //    }
+    //}
+
+    //public static string DisplayCusotmPagingSummary(int numberOfRecords, int currentPage, int pageSize)
+    //{
+    //    StringBuilder strDisplaySummary = new StringBuilder();
+    //    int numberOfPages;
+    //    if (numberOfRecords > pageSize)
+    //    {
+    //        // Calculating the total number of pages
+    //        numberOfPages = (int)Math.Ceiling((double)numberOfRecords / (double)pageSize);
+    //    }
+    //    else
+    //    {
+    //        numberOfPages = 1;
+    //    }
+    //    strDisplaySummary.Append("Showing ");
+    //    int floor = (currentPage * pageSize) + 1;
+    //    strDisplaySummary.Append(floor.ToString());
+    //    strDisplaySummary.Append("-");
+    //    int ceil = ((currentPage * pageSize) + pageSize);
+
+    //    if (ceil > numberOfRecords)
+    //    {
+    //        strDisplaySummary.Append(numberOfRecords.ToString());
+    //    }
+    //    else
+    //    {
+    //        strDisplaySummary.Append(ceil.ToString());
+    //    }
+
+    //    strDisplaySummary.Append(" of ");
+    //    strDisplaySummary.Append(numberOfRecords.ToString());
+    //    strDisplaySummary.Append(" results ");
+    //    return strDisplaySummary.ToString();
+    //}
+
+    protected void GridView1_DataBound(object sender, EventArgs e)
+    {
+        createPagingSummaryOnPagerTemplate(sender, totalRowCount, pageSize);
+    }
+
 }

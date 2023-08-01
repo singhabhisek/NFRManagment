@@ -82,15 +82,24 @@
 
                 </tr>
                 <tr>
-                    <td colspan="6"></td>
+                    <td colspan="6">
+                        <asp:Label ID="Label4" runat="server" Text="# of Records to display" ForeColor="#333333"></asp:Label>
+                    <asp:DropDownList CssClass="select-dropdown" ID="ddlGridviewPaging" runat="server" AutoPostBack="true" OnSelectedIndexChanged="DropDownList1_SelectedIndexChanged">
+                        <asp:ListItem Text="5" Value="5"></asp:ListItem>
+                        <asp:ListItem Text="10" Value="10"></asp:ListItem>
+                        <asp:ListItem Text="20" Value="20"></asp:ListItem>
+                        <asp:ListItem Text="30" Value="30"></asp:ListItem>
+                        <asp:ListItem Text="50" Value="50"></asp:ListItem>
+                    </asp:DropDownList>
+                    </td>
                 </tr>
                 <tr>
                     <td colspan="6">
                         <asp:GridView ID="GridView1" Width="1000px" ShowHeaderWhenEmpty="True" EmptyDataText="No records Found" runat="server" AutoGenerateColumns="False" AllowPaging="True"
                             OnPageIndexChanging="OnPageIndexChanging" OnRowCancelingEdit="GridView1_RowCancelingEdit" OnRowDeleting="GridView1_RowDeleting" OnRowEditing="GridView1_RowEditing" OnRowUpdating="GridView1_RowUpdating"
                             CssClass="table table-striped table-bordered table-hover gvstyling th tr"
-                            DataKeyNames="ID" enablepagingandcallback="false" PageSize="2" OnRowDataBound="GridView1_RowDataBound" OnPreRender="GridView1_PreRender">
-                            <PagerStyle HorizontalAlign="Right" />
+                            DataKeyNames="ID" enablepagingandcallback="false" PageSize="5" OnRowDataBound="GridView1_RowDataBound" OnPreRender="GridView1_PreRender" OnDataBound="GridView1_DataBound">
+                            <PagerStyle HorizontalAlign="Left" />
 
                             <PagerSettings Mode="Numeric" FirstPageText="First" PreviousPageText="Previous" NextPageText="Next" LastPageText="Last" />
                             <Columns>
@@ -132,11 +141,7 @@
             <br />
             <br />
 
-
-
-
         </div>
-
 
         <%--class="table table-bordered table-condensed table-hover"--%>
         <%--CssClass="mydatagrid" PagerStyle-CssClass="pager" HeaderStyle-CssClass="header" RowStyle-CssClass="rows"--%>

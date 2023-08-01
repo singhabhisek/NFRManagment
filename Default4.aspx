@@ -6,8 +6,6 @@
 <head runat="server">
     <title></title>
 
-
-
     <link rel="stylesheet" href="Ultimate.css" />
 </head>
 
@@ -21,7 +19,6 @@
             </div>
         </div>
 
-
         <!-- The sidebar -->
         <div class="sidebar">
             <div class="sidebar">
@@ -33,7 +30,6 @@
             </div>
         </div>
 
-
         <!--Body-->
 
         <div style="margin-left: 600px; top: 200px;" class="form-floating mb-3">
@@ -44,7 +40,6 @@
             <input type="password" class="form-control" style="width: 200px; height: 15px;" id="floatingPassword" placeholder="Password" />
             <label for="floatingPassword">Password</label>
         </div>
-
 
         <div style="margin-left: 600px; top: 200px;" class="form-floating">
             <select class="form-select" id="floatingSelect" style="width: 225px;" aria-label="Floating label select example" />

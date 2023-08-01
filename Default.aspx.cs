@@ -13,14 +13,27 @@ using System.Drawing;
 using System.Activities.Expressions;
 using System.Collections.Generic;
 using System.Xml.Linq;
-
-
+using System.Drawing.Printing;
+using System.Text;
 
 //\r\n
 //^(\s*\r\n){2,}
 
 public partial class _Default : System.Web.UI.Page
 {
+    public int totalRowCount = 0;
+    public int pageSize = 5;
+
+    protected void DropDownList1_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (ddlGridviewPaging.SelectedItem.Text != "0")
+        {
+            int size = int.Parse(ddlGridviewPaging.SelectedItem.Value.ToString());
+            GridView1.PageSize = size;
+            pageSize =size;
+            BindGrid();
+        }
+    }
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -37,20 +50,22 @@ public partial class _Default : System.Web.UI.Page
             //    Session["CurrentUserRole"] = UserRole;
             //}
 
-            if (Session["CurrentUserRole"].ToString() == "User")
-            {
-                int _editColumnIndex = 8;
-                int _delColumnIndex = 9;
-                GridView1.Columns[_editColumnIndex].Visible = false;
-                GridView1.Columns[_delColumnIndex].Visible = false;
+            if (Session["CurrentUserRole"] != null) {
+                if(Session["CurrentUserRole"].ToString() == "User")
+                {
+                    int _editColumnIndex = 8;
+                    int _delColumnIndex = 9;
+                    GridView1.Columns[_editColumnIndex].Visible = false;
+                    GridView1.Columns[_delColumnIndex].Visible = false;
+                }
             }
         }
     }
 
-    public override void VerifyRenderingInServerForm(Control control)
-    {
-        //base.VerifyRenderingInServerForm(control);
-    }
+    //public override void VerifyRenderingInServerForm(Control control)
+    //{
+    //    //base.VerifyRenderingInServerForm(control);
+    //}
     private void BindApplicationDropdown()
     {
 
@@ -93,6 +108,8 @@ public partial class _Default : System.Web.UI.Page
     {
         GridView1.PageIndex = e.NewPageIndex;
         DataTable dt = Session["gridviewsouce"] as DataTable;
+        totalRowCount = dt.Rows.Count;
+        pageSize = int.Parse(ddlGridviewPaging.SelectedItem.Value.ToString());
         GridView1.DataSource = dt;
         GridView1.DataBind();
         //this.BindGrid();
@@ -311,6 +328,10 @@ public partial class _Default : System.Web.UI.Page
             e.Row.Cells[9].Text = "Delete Record";
         }
 
+        //////////////////////////////
+        ///
+
+        createPagingSummaryOnPagerTemplate(sender, totalRowCount, pageSize);
 
     }
 
@@ -381,8 +402,13 @@ public partial class _Default : System.Web.UI.Page
                 else
                 {
                     Session["gridviewsouce"] = dt;
+                    totalRowCount= dt.Rows.Count;
                     GridView1.DataSource = dt;
+
                     GridView1.DataBind();
+                    ////////////////////////////////////
+                    ///
+
                 }
             }
         }
@@ -412,10 +438,109 @@ public partial class _Default : System.Web.UI.Page
 
     protected void GridView1_PreRender(object sender, EventArgs e)
     {
-        GridView gv = (GridView)sender;
-        GridViewRow pagerRow = (GridViewRow)gv.BottomPagerRow;
+        //GridView gv = (GridView)sender;
+        //GridViewRow pagerRow = (GridViewRow)gv.BottomPagerRow;
 
-        if (pagerRow != null && pagerRow.Visible == false)
-            pagerRow.Visible = true;
+        //if (pagerRow != null && pagerRow.Visible == false)
+        //    pagerRow.Visible = true;
     }
+
+    ///////////////////////////////////
+    ///
+
+    protected override void OnPreRender(EventArgs e)
+    {
+        base.OnPreRender(e);
+        SetFixedHeightForGridIfRowsAreLess(GridView1);
+    }
+
+    public void SetFixedHeightForGridIfRowsAreLess(GridView gv)
+    {
+        double headerFooterHeight = gv.HeaderStyle.Height.Value + 35; //we set header height style=35px and there no footer  height so assume footer also same
+        double rowHeight = gv.RowStyle.Height.Value;
+        int gridRowCount = gv.Rows.Count;
+        if (gridRowCount <= gv.PageSize)
+        {
+            double height = (gridRowCount * rowHeight) + ((gv.PageSize - gridRowCount) * rowHeight) + headerFooterHeight;
+            //adjust footer height based on white space removal between footer and last row
+            height += 40;
+            gv.Height = new Unit(height);
+        }
+    }
+
+    public void createPagingSummaryOnPagerTemplate(object sender, int totalCount, int pageSize)
+    {
+        GridView gv = sender as GridView;
+        if (gv != null)
+        {
+            //Get Bottom Pager Row from a gridview
+            GridViewRow row = gv.BottomPagerRow;
+
+            if (row != null)
+            {
+                //create new cell to add to page strip
+                TableCell pagingSummaryCell = new TableCell();
+                pagingSummaryCell.Text = DisplayCusotmPagingSummary(totalCount, gv.PageIndex, pageSize);
+                pagingSummaryCell.HorizontalAlign = HorizontalAlign.Right;
+                pagingSummaryCell.VerticalAlign = VerticalAlign.Middle;
+                pagingSummaryCell.Width = Unit.Percentage(100);
+                pagingSummaryCell.Height = Unit.Pixel(35);
+                //Getting table which shows PagingStrip
+                Table tbl = (Table)row.Cells[0].Controls[0];
+
+                //BottomPagerRow will be visible false if pager doesn't have numbers and page number 1 will be displayed
+                if (totalCount <= pageSize)
+                {
+                    gv.BottomPagerRow.Visible = true;
+                    tbl.Rows[0].Cells.Clear();
+                    tbl.Width = Unit.Percentage(100);
+                }
+                //Find table and add paging summary text
+                tbl.Rows[0].Cells.Add(pagingSummaryCell);
+                //assign header row color to footer row
+                //tbl.BackColor = Color.Red; // System.Drawing.ColorTranslator.FromHtml("#1AD9F2");
+                tbl.Width = Unit.Percentage(100);
+            }
+        }
+    }
+
+    public static string DisplayCusotmPagingSummary(int numberOfRecords, int currentPage, int pageSize)
+    {
+        StringBuilder strDisplaySummary = new StringBuilder();
+        int numberOfPages;
+        if (numberOfRecords > pageSize)
+        {
+            // Calculating the total number of pages
+            numberOfPages = (int)Math.Ceiling((double)numberOfRecords / (double)pageSize);
+        }
+        else
+        {
+            numberOfPages = 1;
+        }
+        strDisplaySummary.Append("Showing ");
+        int floor = (currentPage * pageSize) + 1;
+        strDisplaySummary.Append(floor.ToString());
+        strDisplaySummary.Append("-");
+        int ceil = ((currentPage * pageSize) + pageSize);
+
+        if (ceil > numberOfRecords)
+        {
+            strDisplaySummary.Append(numberOfRecords.ToString());
+        }
+        else
+        {
+            strDisplaySummary.Append(ceil.ToString());
+        }
+
+        strDisplaySummary.Append(" of ");
+        strDisplaySummary.Append(numberOfRecords.ToString());
+        strDisplaySummary.Append(" results ");
+        return strDisplaySummary.ToString();
+    }
+
+    protected void GridView1_DataBound(object sender, EventArgs e)
+    {
+        createPagingSummaryOnPagerTemplate(sender, totalRowCount, pageSize);
+    }
+
 }

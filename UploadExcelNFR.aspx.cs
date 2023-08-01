@@ -9,13 +9,16 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Drawing;
 
-public partial class ExcelUpload : System.Web.UI.Page
+public partial class UploadExcelNFR : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        
+        if (!this.IsPostBack)
+        {
+            string script = "$(document).ready(function () { $('[id*=ContentPlaceHolder1_btnSubmit]').click(); });";
+            ClientScript.RegisterStartupScript(this.GetType(), "load", script, true);
+        }
     }
 
     protected void Upload(object sender, EventArgs e)
@@ -30,7 +33,7 @@ public partial class ExcelUpload : System.Web.UI.Page
 
         if (FileUpload1.HasFile)
         {
-            
+
             string excelPath = Server.MapPath("~/Files/F") + DateTime.UtcNow.ToString("HHmmss") + Path.GetFileName(FileUpload1.PostedFile.FileName);
             FileUpload1.SaveAs(excelPath);
 
@@ -130,7 +133,7 @@ public partial class ExcelUpload : System.Web.UI.Page
                                             if (reader[0].ToString() == "" || reader[1].ToString() == "" || reader[2].ToString() == "" || reader[3].ToString() == "")
                                             {
                                                 blankFieldRecordCount++;
-                                                exceptions += "<br/> Row# " + recordCount + ": One of the required values is blank or NULL in excel";
+                                                exceptions += "<br/> Row# " + recordCount + ": Error - One of the required values is blank or NULL in excel";
                                             }
                                             else
                                             {
@@ -145,8 +148,13 @@ public partial class ExcelUpload : System.Web.UI.Page
                                                 cmd.Parameters.Add("@TPS", SqlDbType.Float, 100).Value = reader[5].ToString();
                                                 cmd.Parameters.Add("@backendCall", SqlDbType.VarChar, 255).Value = reader[6].ToString();
                                                 cmd.Parameters.Add("@callType", SqlDbType.VarChar, 255).Value = reader[7].ToString();
+                                                cmd.Parameters.Add("@retValue", SqlDbType.VarChar, 50);
+                                                cmd.Parameters["@retValue"].Direction = ParameterDirection.Output;
 
-                                                resultProcedure = cmd.ExecuteScalar().ToString();
+
+                                                cmd.ExecuteNonQuery();
+
+                                                resultProcedure = (string)cmd.Parameters["@retValue"].Value;
 
                                                 if (resultProcedure == "INSERTED")
                                                 {
@@ -169,20 +177,27 @@ public partial class ExcelUpload : System.Web.UI.Page
                                                 int pTo = sqlEx.Message.LastIndexOf("statement") - 5;
 
                                                 String result = sqlEx.Message.Substring(pFrom, pTo - pFrom);
-                                                exceptions += "<br/> Row# " + recordCount + ": Duplicate " + result;
+                                                exceptions += "<br/> Row# " + recordCount + ": Duplicate - " + result;
                                             }
                                             else
                                             {
-                                                exceptions += "<br/>" + sqlEx.Message.ToString();
+                                                exceptions += "<br/> Row# " + recordCount + "<br/>" + sqlEx.Message.ToString();
                                             }//exceptions += "<br/>" + sqlEx.Message.ToString().Replace("PK_NFRProTable", "").Replace("dbo.NFRProTable", "");
                                         }
+                                        catch (Exception ex)
+                                        {
+                                            sqlExceptionRecordCount++;
+                                            exceptions += "<br/> Row# " + recordCount + ": Error - " + ex.Message.ToString();
+                                        }
+
                                     }
                                     // }
                                 }
 
                             }
-                            reader.Close();
+
                         }
+                        reader.Close();
                         if (blankFieldRecordCount > 0 || sqlExceptionRecordCount > 0)
                         {
                             //FileUpload_Msg.Text
@@ -212,12 +227,11 @@ public partial class ExcelUpload : System.Web.UI.Page
 
             File.Delete(excelPath);
         }
-        
+
         else
         {
             FileUpload_Msg.Text = "Error - No file chosen.";
 
         }
     }
-
 }

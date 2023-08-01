@@ -9,7 +9,6 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Drawing;
 
 public partial class ExcelUpload : System.Web.UI.Page
 {
@@ -104,9 +103,6 @@ public partial class ExcelUpload : System.Web.UI.Page
                     excel_con.Close();
                     /*end of header checks in excel*/
                     string query = "SELECT * FROM [" + sheet1 + "]";
-                    string resultProcedure = "";
-                    int insertCount = 0;
-                    int updateCount = 0;
                     using (OleDbConnection connection = new OleDbConnection(connExcelString))
                     {
                         OleDbCommand command = new OleDbCommand(query, connection);
@@ -114,93 +110,79 @@ public partial class ExcelUpload : System.Web.UI.Page
                         connection.Open();
                         OleDbDataReader reader = command.ExecuteReader();
 
-                        //start writing in database for insert or update
-
                         while (reader.Read())
                         {
                             recordCount++;
                             using (SqlConnection connection1 = new SqlConnection(connSqlString))
                             {
-                                //String queryInsert = "INSERT INTO [dbo].[NFRProTable] ([applicationName],[releaseID],[businessScenario],[transactionNames],[SLA],[TPS],[backendCall],[callType]) VALUES \r\n(@applicationName, @releaseID, @businessScenario, @transactionNames, @SLA, @TPS, @backendCall, @callType) ";
-                                using (SqlCommand cmd = new SqlCommand("NFRDetails_InsertUpdate", connection1))
+                                String queryInsert = "INSERT INTO [dbo].[NFRProTable] ([applicationName],[releaseID],[businessScenario],[transactionNames],[SLA],[TPS],[backendCall],[callType]) VALUES \r\n(@applicationName, @releaseID, @businessScenario, @transactionNames, @SLA, @TPS, @backendCall, @callType) ";
+                                using (SqlCommand CCC = new SqlCommand(queryInsert, connection1))
                                 {
+                                    try
                                     {
-                                        try
+                                        if (reader[0].ToString() == "" || reader[1].ToString() == "" || reader[2].ToString() == "" || reader[3].ToString() == "")
                                         {
-                                            if (reader[0].ToString() == "" || reader[1].ToString() == "" || reader[2].ToString() == "" || reader[3].ToString() == "")
-                                            {
-                                                blankFieldRecordCount++;
-                                                exceptions += "<br/> Row# " + recordCount + ": One of the required values is blank or NULL in excel";
-                                            }
-                                            else
-                                            {
-                                                connection1.Open();
-                                                cmd.CommandType = CommandType.StoredProcedure;
-
-                                                cmd.Parameters.Add("@applicationName", SqlDbType.VarChar, 255).Value = reader[0].ToString();
-                                                cmd.Parameters.Add("@releaseID", SqlDbType.VarChar, 255).Value = reader[1].ToString();
-                                                cmd.Parameters.Add("@businessScenario", SqlDbType.VarChar, 255).Value = reader[2].ToString();
-                                                cmd.Parameters.Add("@transactionNames", SqlDbType.VarChar, 255).Value = reader[3].ToString();
-                                                cmd.Parameters.Add("@SLA", SqlDbType.Float, 10).Value = reader[4].ToString();
-                                                cmd.Parameters.Add("@TPS", SqlDbType.Float, 100).Value = reader[5].ToString();
-                                                cmd.Parameters.Add("@backendCall", SqlDbType.VarChar, 255).Value = reader[6].ToString();
-                                                cmd.Parameters.Add("@callType", SqlDbType.VarChar, 255).Value = reader[7].ToString();
-
-                                                resultProcedure = cmd.ExecuteScalar().ToString();
-
-                                                if (resultProcedure == "INSERTED")
-                                                {
-                                                    insertCount++;
-                                                }
-                                                else if (resultProcedure == "UPDATED")
-                                                {
-                                                    updateCount++;
-                                                }
-                                            }
-                                            //fieldIncrementor++;
+                                            blankFieldRecordCount++;
+                                            exceptions += "<br/> Row# " + recordCount + ": One of the required values is blank or NULL in excel";
                                         }
-                                        catch (SqlException sqlEx)
+                                        else
                                         {
+                                            connection1.Open();
+                                            CCC.CommandType = CommandType.Text;
 
-                                            sqlExceptionRecordCount++;
-                                            if (sqlEx.Number == 2627)
-                                            {
-                                                int pFrom = sqlEx.Message.IndexOf("key value is"); // + "key value is".Length;
-                                                int pTo = sqlEx.Message.LastIndexOf("statement") - 5;
+                                            CCC.Parameters.Add("@applicationName", SqlDbType.VarChar, 255).Value = reader[0].ToString();
+                                            CCC.Parameters.Add("@releaseID", SqlDbType.VarChar, 255).Value = reader[1].ToString();
+                                            CCC.Parameters.Add("@businessScenario", SqlDbType.VarChar, 255).Value = reader[2].ToString();
+                                            CCC.Parameters.Add("@transactionNames", SqlDbType.VarChar, 255).Value = reader[3].ToString();
+                                            CCC.Parameters.Add("@SLA", SqlDbType.Float, 10).Value = reader[4].ToString();
+                                            CCC.Parameters.Add("@TPS", SqlDbType.Float, 100).Value = reader[5].ToString();
+                                            CCC.Parameters.Add("@backendCall", SqlDbType.VarChar, 255).Value = reader[6].ToString();
+                                            CCC.Parameters.Add("@callType", SqlDbType.VarChar, 255).Value = reader[7].ToString();
 
-                                                String result = sqlEx.Message.Substring(pFrom, pTo - pFrom);
-                                                exceptions += "<br/> Row# " + recordCount + ": Duplicate " + result;
-                                            }
-                                            else
-                                            {
-                                                exceptions += "<br/>" + sqlEx.Message.ToString();
-                                            }//exceptions += "<br/>" + sqlEx.Message.ToString().Replace("PK_NFRProTable", "").Replace("dbo.NFRProTable", "");
+                                            CCC.ExecuteNonQuery();
                                         }
+                                        //fieldIncrementor++;
                                     }
-                                    // }
-                                }
+                                    catch (SqlException sqlEx)
+                                    {
 
+                                        sqlExceptionRecordCount++;
+                                        if (sqlEx.Number == 2627)
+                                        {
+                                            int pFrom = sqlEx.Message.IndexOf("key value is"); // + "key value is".Length;
+                                            int pTo = sqlEx.Message.LastIndexOf("statement") - 5;
+
+                                            String result = sqlEx.Message.Substring(pFrom, pTo - pFrom);
+                                            exceptions += "<br/> Row# " + recordCount + ": Duplicate " + result; 
+                                        }
+                                        else
+                                        {
+                                            exceptions += "<br/>" + sqlEx.Message.ToString();
+                                        }//exceptions += "<br/>" + sqlEx.Message.ToString().Replace("PK_NFRProTable", "").Replace("dbo.NFRProTable", "");
+                                    }
+                                }
+                                // }
                             }
-                            reader.Close();
+
                         }
-                        if (blankFieldRecordCount > 0 || sqlExceptionRecordCount > 0)
-                        {
-                            //FileUpload_Msg.Text
-                            exceptions = "File processed. Number of records: " + recordCount.ToString() +
-                                    " <br/> Number or records successfully inserted:" + (insertCount).ToString() +
-                                    " <br/> Number or records successfully updated:" + (updateCount).ToString() +
-                                    " <br/> Number or records skipped due to blank field error:" + blankFieldRecordCount.ToString() +
-                                    " <br/> Number or records skipped due to SQL error:" + sqlExceptionRecordCount.ToString() +
-                                    "<br/> Exceptions are: <br/>" + exceptions;
-                        }
-                        else
-                        {
-                            exceptions = "File processed. Number of records: " + recordCount.ToString() +
-                                    " <br/> Number or records successfully inserted:" + (insertCount).ToString() +
-                                    " <br/> Number or records successfully updated:" + (updateCount).ToString();
-                        }
+                        reader.Close();
+                    }
+                    if (blankFieldRecordCount > 0 || sqlExceptionRecordCount > 0)
+                    {
+                        //FileUpload_Msg.Text
+                        exceptions = "File processed. Number of records: " + recordCount.ToString() +
+                                " <br/> Number or records successfully inserted:" + (recordCount - blankFieldRecordCount - sqlExceptionRecordCount).ToString() +
+                                " <br/> Number or records skipped due to blank field error:" + blankFieldRecordCount.ToString() +
+                                " <br/> Number or records skipped due to SQL error:" + sqlExceptionRecordCount.ToString() +
+                                "<br/> Exceptions are: <br/>" + exceptions;
+                    }
+                    else
+                    {
+                        exceptions = "File processed. Number of records: " + recordCount.ToString() +
+                                " <br/> Number or records successfully inserted:" + (recordCount - blankFieldRecordCount - sqlExceptionRecordCount).ToString();
 
                     }
+
                 }
             }
             catch (Exception ex)

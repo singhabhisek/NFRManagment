@@ -13,7 +13,6 @@ public partial class MasterPage : System.Web.UI.MasterPage
     protected void Page_Load(object sender, EventArgs e)
     {
         //lblUser.Text = "Hallo : " + System.Security.Principal.WindowsIdentity.GetCurrent().User.Translate(typeof(System.Security.Principal.NTAccount));
-        
 
         if (Session["CurrentUserRole"] == null)
         {
@@ -33,7 +32,7 @@ public partial class MasterPage : System.Web.UI.MasterPage
             div1.Visible = true;
         }
 
-        lblUser.Text = "Hallo : " + Session["CurrentUserRole"].ToString();
+     //   lblUserName.Text = "Hallo : " + Session["CurrentUserRole"].ToString();
 
     }
 
