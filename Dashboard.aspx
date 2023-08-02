@@ -56,7 +56,7 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
-    <div style="margin-top: 50px; text-align: left; margin-left: 200px">
+    <div style="margin-top: 80px; text-align: left; margin-left: 200px">
        <%-- <h4 style="align-content: center; text-align: center">Search Non-Functional Records for Application</h4>
 
         <br />--%>

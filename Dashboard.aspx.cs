@@ -10,10 +10,11 @@ using System.Web.UI.WebControls;
 using System.Web.Services;
 using static CommonLibraryFunctions.CommonMethods;
 using System.Text;
+using Org.BouncyCastle.Asn1.Crmf;
 
 public partial class Dashboard : System.Web.UI.Page
 {
-    int resultSizeLimit = 3;
+    int resultSizeLimit = 100;
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -49,7 +50,7 @@ public partial class Dashboard : System.Web.UI.Page
     {
         List<string> trxNames = new List<string>();
         DataTable dt = HttpContext.Current.Session["TrxTableListDashboard"] as DataTable;
-        trxNames = dt.AsEnumerable().Where(x => x.Field<String>("transactionNames").Contains(prefixText)).Select(x => x[0].ToString()).ToList();
+        trxNames = dt.AsEnumerable().Where(x => x.Field<String>("transactionNames").ToLower().Contains(prefixText.ToLower())).Select(x => x[0].ToString()).ToList();
         if (trxNames.Count <= 0)
         {
             for (int i = 0; i < dt.Rows.Count; i++)
@@ -65,7 +66,7 @@ public partial class Dashboard : System.Web.UI.Page
 
             }
         }
-            return trxNames;
+        return trxNames;
     }
 
     //added on 07/25
@@ -264,8 +265,81 @@ public partial class Dashboard : System.Web.UI.Page
 
     }
 
+    void BindGrid(GridView gridView, DropDownList ddlApplicationName, DropDownList ddlReleaseID,
+            TextBox txtTransactionName)
+    {
+
+        string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        using (SqlConnection con = new SqlConnection(constr))
+        {
+            String strSearch;
+            using (SqlCommand cmd = new SqlCommand())
+            {
+                if (ddlApplicationName.SelectedIndex > 0)
+                {
+                    strSearch = "SELECT TOP 100 * FROM [NFRDetails]";
+                }
+                else
+                {
+                    strSearch = "SELECT * FROM [NFRDetails] where 1=2";
+                }
+                if (ddlApplicationName.SelectedIndex > 0)
+                {
+                    strSearch = strSearch + " WHERE [applicationName]=@applicationName";
+                    cmd.Parameters.AddWithValue("applicationName", ddlApplicationName.Text);
+
+                    if (ddlReleaseID.SelectedIndex > 0)
+                    {
+                        strSearch = strSearch + " AND [releaseID]=@releaseID";
+                        cmd.Parameters.AddWithValue("releaseID", ddlReleaseID.Text);
+                    }
+
+                    if (txtTransactionName.Text.Length > 0)
+                    {
+                        String textSearch;
+                        textSearch = txtTransactionName.Text;
+                        if (txtTransactionName.Text.EndsWith("*"))
+                        {
+                            textSearch = txtTransactionName.Text.Remove(txtTransactionName.Text.Length - 1);
+                        }
+                        strSearch = strSearch + " AND (([transactionNames] like '%' + @transactionNames) )";
+                        //OR (SOUNDEX([transactionNames]) like  SOUNDEX(@transactionNames))
+                        cmd.Parameters.AddWithValue("transactionNames", textSearch);
+                    }
+
+                }
+
+                cmd.CommandText = strSearch;
+                //create parameters with specified name and values
+                cmd.Connection = con;
+
+                DataTable dt = new DataTable();
+                using (SqlDataAdapter sda = new SqlDataAdapter(cmd))
+                {
+                    sda.Fill(dt);
+                }
+                //retrive data
+                totalRowCount = dt.Rows.Count;
+                if (dt.Rows.Count == 0)
+                {
+                    resetGridView(gridView);
+                    //this.Label1.Text = "No Data Found";
+                    //return;
+                }
+                else
+                {
+                    HttpContext.Current.Session["gridviewsouce"] = dt;
+                    gridView.DataSource = dt;
+                    gridView.DataBind();
+                }
+            }
+        }
+
+    }
+
     protected void btnSubmit_Click(object sender, EventArgs e)
     {
+        lblError.Text = "";
         resetGridView(GridView1);
         if (txtTransactionName.Text.Trim().Length > 0 && txtTransactionName.Text.Trim().Length < 3)
         {
@@ -273,17 +347,30 @@ public partial class Dashboard : System.Web.UI.Page
             txtTransactionName.Focus();
 
         }
-        else { 
-            int cntRows = returnCountFromTables(ddlApplicationName);
-            if (cntRows < resultSizeLimit)
+        else {
+            
+            lblError.Text = "";
+            if(txtTransactionName.Text.Trim().Length ==0 && ddlReleaseID.SelectedIndex < 1)
             {
-                lblError.Text = "";
-                BindGrid(GridView1, ddlApplicationName, ddlReleaseID, txtTransactionName);
+                lblError.Text = "With Application, please filter by one of the other criterias - Release or Transaction";
             }
             else
             {
-                lblError.Text = "Error: More than " + resultSizeLimit + " records found. Please use additional search fields - Release or Transaction";
+                BindGrid(GridView1, ddlApplicationName, ddlReleaseID, txtTransactionName);
+
+                //returnCountFromTables(ddlApplicationName)
+
+                DataTable dt = Session["gridviewsouce"] as DataTable;
+                int cntRows = dt.Rows.Count;
+
+                if (cntRows == resultSizeLimit)
+
+                {
+                    lblError.Text = "Showing top 100 records. More than " + resultSizeLimit + " records may exist. Please use additional search fields - Release or Transaction to narrow search results";
+                }
             }
+
+
         }
         
             
@@ -303,6 +390,7 @@ public partial class Dashboard : System.Web.UI.Page
 
     protected void ddlReleaseID_SelectedIndexChanged(object sender, EventArgs e)
     {
+        resetGridView(GridView1);
         if (ddlReleaseID.SelectedIndex > 0)
         {
             FillTransactionNameDT(ddlApplicationName.SelectedValue.ToString(), ddlReleaseID.SelectedValue.ToString(), "TrxTableListDashboard");

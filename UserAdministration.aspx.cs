@@ -13,8 +13,11 @@ using static CommonLibraryFunctions.CommonMethods;
 
 public partial class UserAdministration : System.Web.UI.Page
 {
-    protected void Page_Load(object sender, EventArgs e)
+    protected void ValidateUser(object sender, EventArgs e)
+    { }
+        protected void Page_Load(object sender, EventArgs e)
     {
+        
         if (Session["authenticate"] != null)
         {
             if (Session["authenticate"].ToString() == "TRUE")

@@ -127,77 +127,7 @@ namespace CommonLibraryFunctions
             return count;
         }
 
-        public static void BindGrid(GridView gridView, DropDownList ddlApplicationName, DropDownList ddlReleaseID,
-            TextBox txtTransactionName)
-        {
-
-            string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(constr))
-            {
-                String strSearch;
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    if (ddlApplicationName.SelectedIndex > 0)
-                    {
-                        strSearch = "SELECT * FROM [NFRDetails]";
-                    }
-                    else
-                    {
-                        strSearch = "SELECT * FROM [NFRDetails] where 1=2";
-                    }
-                    if (ddlApplicationName.SelectedIndex > 0)
-                    {
-                        strSearch = strSearch + " WHERE [applicationName]=@applicationName";
-                        cmd.Parameters.AddWithValue("applicationName", ddlApplicationName.Text);
-
-                        if (ddlReleaseID.SelectedIndex > 0)
-                        {
-                            strSearch = strSearch + " AND [releaseID]=@releaseID";
-                            cmd.Parameters.AddWithValue("releaseID", ddlReleaseID.Text);
-                        }
-
-                        if (txtTransactionName.Text.Length > 0)
-                        {
-                            String textSearch;
-                            textSearch = txtTransactionName.Text;
-                            if (txtTransactionName.Text.EndsWith("*"))
-                            {
-                                textSearch = txtTransactionName.Text.Remove(txtTransactionName.Text.Length - 1);
-                            }
-                            strSearch = strSearch + " AND (([transactionNames] like '%' + @transactionNames) )";
-                            //OR (SOUNDEX([transactionNames]) like  SOUNDEX(@transactionNames))
-                            cmd.Parameters.AddWithValue("transactionNames", textSearch);
-                        }
-
-                    }
-
-                    cmd.CommandText = strSearch;
-                    //create parameters with specified name and values
-                    cmd.Connection = con;
-
-                    DataTable dt = new DataTable();
-                    using (SqlDataAdapter sda = new SqlDataAdapter(cmd))
-                    {
-                        sda.Fill(dt);
-                    }
-                    //retrive data
-                    totalRowCount = dt.Rows.Count;
-                    if (dt.Rows.Count == 0)
-                    {
-                        resetGridView(gridView);
-                        //this.Label1.Text = "No Data Found";
-                        //return;
-                    }
-                    else
-                    {
-                        HttpContext.Current.Session["gridviewsouce"] = dt;
-                        gridView.DataSource = dt;
-                        gridView.DataBind();
-                    }
-                }
-            }
-
-        }
+        
 
         public static void ExportGridToExcel(GridView gridView)
         {

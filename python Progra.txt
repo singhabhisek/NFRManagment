@@ -1,0 +1,25 @@
+import random
+
+records = []
+
+# Array of values for the 4th column
+array_values = ['Login', 'Logout', 'TransactionHistory', 'TransactionDetails', 'Dashboard', 'Preferences', 'Offers', 'CreditCardDetails', 'SavingsDetails', 'Rewards', 'Launch']
+
+array_application = ['OnlineBanking', 'Mobile', 'Application1', 'Application2', 'Application3', 'WebServices']
+
+array_release = ['2022.3', '2022.4', '2023.7', '2023.5', '2023.6']
+
+for _ in range(10000):
+    # Generate random values for columns 5 and 6
+    column_5 = random.randint(1,11)*5
+    column_6 = random.randint(1,11)*50
+
+    # Select random value for column 4 from the array_values
+    column_4 = random.choice(array_values)
+    column_1 = random.choice(array_application)
+    column_2 = random.choice(array_release)
+    column_3 = 'Bus_'
+    # Append the record to the records list
+    print(f'{column_1},{column_2},{column_3},{column_4},{column_5},{column_6},NULL,Sync')
+
+    

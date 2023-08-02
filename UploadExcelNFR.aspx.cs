@@ -14,7 +14,6 @@ public partial class UploadExcelNFR : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        
     }
 
     protected void Upload(object sender, EventArgs e)
@@ -76,7 +75,7 @@ public partial class UploadExcelNFR : System.Web.UI.Page
 
                     string connSqlString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
-                    var fieldIncrementor = 0;
+                    //var fieldIncrementor = 0;
 
                     /* check the heders for excel before processing */
                     excel_con.Open();
@@ -126,10 +125,14 @@ public partial class UploadExcelNFR : System.Web.UI.Page
                                     {
                                         try
                                         {
+                                            if (recordCount > 161)
+                                            {
+                                                string a = recordCount.ToString();
+                                            }
                                             if (reader[0].ToString() == "" || reader[1].ToString() == "" || reader[2].ToString() == "" || reader[3].ToString() == "")
                                             {
                                                 blankFieldRecordCount++;
-                                                exceptions += "<br/> Row# " + recordCount + ": Error - One of the required values is blank or NULL in excel";
+                                                exceptions += "<br/> Row# " + recordCount + ": Error - One of the required values is blank or NULL in excel - "  + reader[0].ToString() + "," + reader[1].ToString() + "," +  reader[2].ToString() + "," + reader[3].ToString();
                                             }
                                             else
                                             {

@@ -364,6 +364,7 @@ public partial class _Default : System.Web.UI.Page
                 if (dt.Rows.Count == 0)
                 {
                     GridView1.DataSource = dt; // new List<string>();
+                    Session["gridviewsourceCompare"] = dt;
                     GridView1.DataBind();
                     //this.Label1.Text = "No Data Found";
                     //return;

@@ -20,7 +20,7 @@ public partial class Login : System.Web.UI.Page
     {
         string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         SqlConnection con = new SqlConnection(connectionString);
-        SqlCommand cmd = new SqlCommand("select UserName, Password from credentials where UserName=@username and Password=@password", con);
+        SqlCommand cmd = new SqlCommand("select UserId, Password from credentials where UserId=@username and Password=@password", con);
         cmd.Parameters.AddWithValue("@username", txtUserName.Text);
         cmd.Parameters.AddWithValue("@password", txtPwd.Text);
         SqlDataAdapter sda = new SqlDataAdapter(cmd);
@@ -40,10 +40,10 @@ public partial class Login : System.Web.UI.Page
 
             //ClientScript.RegisterStartupScript(this.GetType(), "script", s, true);
             //Label1.Text = "";
-
-            Response.Redirect("UserAdministration.aspx");
             Session["authenticate"] = "TRUE";
-           
+            Response.Redirect("UserAdministration.aspx");
+            
+
 
         }
         else
