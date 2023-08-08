@@ -4,18 +4,25 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="Resources/css/Ultimate.css" />
+    <%-- <link rel="stylesheet" href="Bootstrap.css" />--%>
+
+
     <style>
         .float-container {
             border: 3px solid #fff;
             margin-left: 200px;
             margin-top: 30px;
+            width: 700px;
         }
 
         .float-child {
-            width: 30%;
+            width: 50%;
             height: 300px;
             float: left;
             padding: 20px;
+            margin-top: 100px;
         }
     </style>
 </asp:Content>
@@ -35,11 +42,11 @@
 
             <div class="float-child">
 
-                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp" alt="aa" style="display: block; margin-left: auto; margin-right: auto; margin-top: 50px; margin-bottom: auto; align-items: center; justify-content: center; width: 300px;" />
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp" alt="aa" style="display: block; margin-left: auto; margin-right: auto; margin-top: 50px; margin-bottom: auto; align-items: center; justify-content: center; width: 400px;" />
             </div>
 
             <div class="float-child">
-                <table style="table-layout: fixed; width: 400px; margin-left: auto; margin-right: auto; margin-top: 50px; margin-bottom: auto; top: 50px;">
+                <table style="table-layout: fixed; width: 400px; margin-left: auto; margin-right: auto; margin-top: 100px; margin-bottom: auto; top: 50px;">
 
                     <tr>
                         <td>
@@ -72,21 +79,19 @@
                                 ErrorMessage="Please enter Password" ForeColor="Red" SetFocusOnError="True"></asp:RequiredFieldValidator>
                         </td>
                     </tr>
-                    <tr>
-                        <td style="text-align: right; vertical-align: middle">
-                            <asp:Button ID="btnSubmit" runat="server" CssClass="btn btn-primary" Text="Login" OnClick="btnSubmit_Click" />
-                        </td>
-                        <td style="text-align: left; vertical-align: middle">
-                            <asp:Button ID="btnclose" runat="server" Text="Back" CssClass="btn btn-secondary" CausesValidation="false" /></td>
-                    </tr>
-                    <tr>
-
-                        <td colspan="2">
-                            <asp:Label ID="Label1" Text="" runat="server"></asp:Label>
-                        </td>
-                    </tr>
                 </table>
+
+                <div style="text-align: right;display: inline;margin-left: 200px;margin-top:0px">
+                    <asp:Button ID="btnSubmit" runat="server" CssClass="btn btn-primary" Text="Login" OnClick="btnSubmit_Click" />
+                   <asp:Button ID="btnclose" runat="server" Text="Back" CssClass="btn btn-secondary" CausesValidation="false" />
+                </div>
+
+                <div style="text-align: left; vertical-align: middle; display: inline;margin-left:100px;margin-top:0px; width:400px">
+                <asp:Label ID="Label1" Width="100%" Text="" runat="server"></asp:Label>
+
             </div>
+            </div>
+            
 
             <%--  </asp:Panel>--%>
         </div>

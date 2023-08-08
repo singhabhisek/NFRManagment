@@ -1,4 +1,4 @@
-﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPage.master.cs" Inherits="MasterPage" %>
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPage-Old.master.cs" Inherits="MasterPage" %>
 
 <!DOCTYPE html>
 <html>
@@ -13,33 +13,41 @@
 <body>
     <form id="form1" runat="server">
 
-        <!--Header-->
-        <div class="banner-style">
-            <img src="Resources/images/truist-logo-purple.svg" class="logo-style" />
-            <div style="position: absolute; top: 15px; left: 160px; color: rgba(255,255,255,0.5); font-size: 24px; margin: 0;">| </div>
-            <div style="position: absolute;display: inline; padding-left: 200px; justify-content: center; ">
-                | 
+        <table style="position: relative; top: 0; bottom: 0; left: 0; right: 0;width:calc(100vw - 10px);height:calc(100vh - 20px);">
+
+            <tr style="padding: 0px;height:20%">
+                <td colspan="2">
+
+                    <!--Header-->
+                    <div class="banner-style">
+                        <img src="Resources/images/truist-logo-purple.svg" class="logo-style" />
+                        <div style="position: absolute; top: 15px; left: 160px; color: rgba(255,255,255,0.5); font-size: 24px; margin: 0;">| </div>
+                        <div style="position: absolute; display: inline; padding-left: 200px; justify-content: center;">
+                            | 
                 <p class="banner-title">Performance Engineering Services</p>
-                <p class="banner-title" style="line-height: 20px;">NON-FUNCTIONAL REQUIREMENT MGMT (NFR) PORTAL</p>
+                            <p class="banner-title" style="line-height: 20px;">NON-FUNCTIONAL REQUIREMENT MGMT (NFR) PORTAL</p>
 
-            </div>
-            <div style="margin-left: 600px; justify-content: right;">
-                <p>
-                    <h4>Click<a style="color: white" href="Dashboard.aspx" target="_blank">here</a></h4>
-                </p>
+                        </div>
+                        <div style="margin-left: 600px; justify-content: right;">
+                            <p>
+                                <h4>Click<a style="color: white" href="Dashboard.aspx" target="_blank">here</a></h4>
+                            </p>
 
-            </div>
-            <div style="margin-left: 200px; justify-content: right;">
-                <p>
-                    <h5 style="color: white">
-                        <asp:Label ID="lblUserName" runat="server" Text="Label"></asp:Label></h5>
-                </p>
-            </div>
-        </div>
+                        </div>
+                        <div style="margin-left: 200px; justify-content: right;">
+                            <p>
+                                <h5 style="color: white">
+                                    <asp:Label ID="lblUserName" runat="server" Text="Label"></asp:Label></h5>
+                            </p>
+                        </div>
+                    </div>
 
-        <table style="width: 100%">
-            <tr>
-                <td>
+
+                </td>
+            </tr>
+            <tr style="padding: 0px;height:80%">
+
+                <td style="background-color: #e6e6e6; vertical-align: top; padding: 0px; width:50%;">
                     <!-- The sidebar -->
                     <div class="sidebar">
                         <div class="sidebar">
@@ -62,11 +70,9 @@
                     </div>
 
                 </td>
-                <td>
+                <td style="vertical-align: top; padding: 0px; width:50%;">
                     <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
-                          <div id="div1" style="height: 500px;position:relative;">
-
-                          </div>
+                        
                     </asp:ContentPlaceHolder>
                 </td>
             </tr>

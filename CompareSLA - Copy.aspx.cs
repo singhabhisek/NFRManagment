@@ -12,25 +12,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Services;
 using System.Web;
-using System.Net;
 
 public partial class _Default : System.Web.UI.Page
 {
-    static bool enableCompare = false;
-
+    
     protected void Page_Load(object sender, EventArgs e)
     {
         if (!this.IsPostBack)
         {
-
             BindApplicationDropdown();
 
             this.BindGrid();
-            retrieveStack();
-        }
-        else if (enableCompare)
-        {
-            //  retrieveStack();
         }
     }
 
@@ -40,22 +32,44 @@ public partial class _Default : System.Web.UI.Page
     }
     private void BindApplicationDropdown()
     {
+        
         string query = "select distinct [applicationName] from NFRDetails";
         BindDropDownList(ddlApplicationName, query, "applicationName", "applicationName", "-Select Application-");
-        // ddlReleaseID.Items.Insert(0, new ListItem("-Select Release-", "0"));
+       // ddlReleaseID.Items.Insert(0, new ListItem("-Select Release-", "0"));
+
     }
 
+    //private void BindGrid1()
+    //{
+    //    string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+    //    using (SqlConnection con = new SqlConnection(constr))
+    //    {
+    //        using (SqlCommand cmd = new SqlCommand("SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name',     MAX(CASE WHEN releaseID='2023.M02' THEN SLA END) M02_SLA,     MAX(CASE WHEN releaseID='2023.M03' THEN SLA END) M03_SLA,     MAX(CASE WHEN releaseID='2023.M02' THEN TPS END) M02_TPS,     MAX(CASE WHEN releaseID='2023.M03' THEN TPS END) M03_TPS FROM [dbo].[NFRDetails] a where a.[transactionNames] = 'OLB_Login' GROUP BY a.[applicationName]       ,a.[transactionNames];"))
+    //        {
+    //            using (SqlDataAdapter sda = new SqlDataAdapter())
+    //            {
+    //                cmd.Connection = con;
+    //                sda.SelectCommand = cmd;
+    //                using (DataTable dt = new DataTable())
+    //                {
+    //                    sda.Fill(dt);
+    //                    
+    //                    GridView1.DataSource = dt;
+    //                    GridView1.DataBind();
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
     protected void DropDownList1_SelectedIndexChanged(object sender, EventArgs e)
     {
-        //GridViewRow pagerRow = GridView1.BottomPagerRow;
-        //DropDownList ddlGridviewPaging = (DropDownList)pagerRow.Cells[0].FindControl("ddlGridviewPaging");
 
         int size = int.Parse(ddlGridviewPaging.SelectedItem.Value.ToString());
         GridView1.PageSize = size;
         pageSize = size;
         DataTable dt = Session["gridviewsourceCompare"] as DataTable;
-
+        
         GridView1.DataSource = dt;
         GridView1.DataBind();
 
@@ -125,10 +139,6 @@ public partial class _Default : System.Web.UI.Page
         ddlReleaseID.Items.Clear();
         ddlReleaseID1.Items.Clear();
         ddlReleaseID2.Items.Clear();
-        txtTransactionName.Text = "";
-        fillEmptyDatatable();
-        //resetGridView(GridView1);
-        lblError.Text = "";
         string query = string.Format("select distinct ReleaseID from NFRDetails where ApplicationName = '{0}'", ddlApplicationName.SelectedItem.Value);
         BindDropDownList(ddlReleaseID, query, "ReleaseID", "ReleaseID", "-Select ReleaseID-");
         BindDropDownList(ddlReleaseID1, query, "ReleaseID", "ReleaseID", "-Select ReleaseID-");
@@ -153,7 +163,7 @@ public partial class _Default : System.Web.UI.Page
                 con.Close();
             }
         }
-        // ddl.Items.Insert(0, new ListItem("-All-", "0"));
+       // ddl.Items.Insert(0, new ListItem("-All-", "0"));
         ddl.Items.Insert(0, new ListItem(defaultText, "0"));
     }
 
@@ -225,25 +235,18 @@ public partial class _Default : System.Web.UI.Page
             }
 
         }
-
     }
 
     protected void btnSubmit_Click(object sender, EventArgs e)
     {
-        //resetGridView(GridView1);
-        fillEmptyDatatable();
-        if (ddlApplicationName.SelectedIndex < 1)
+        resetGridView(GridView1);
+        if (ddlReleaseID.SelectedIndex < 1 && ddlReleaseID1.SelectedIndex < 1 && ddlReleaseID2.SelectedIndex < 1)
         {
-            lblError.Text = "Please select Application Name with First Release ID.";
-            ddlApplicationName.Focus();
-        }
-        else if (ddlReleaseID.SelectedIndex < 1 && ddlReleaseID1.SelectedIndex < 1 && ddlReleaseID2.SelectedIndex < 1)
-        {
-            lblError.Text = "Select First Release ID to start compare.";
+            lblError.Text = "Select First Release Item";
             ddlReleaseID.Focus();
         }
 
-        else if ((ddlReleaseID.SelectedIndex > 0
+        else if ((ddlReleaseID.SelectedIndex > 0 
             && ddlReleaseID.SelectedValue.ToString() == ddlReleaseID1.SelectedValue.ToString()) ||
             (ddlReleaseID.SelectedIndex > 0 &&
                 ddlReleaseID.SelectedValue.ToString() == ddlReleaseID2.SelectedValue.ToString()) ||
@@ -252,28 +255,18 @@ public partial class _Default : System.Web.UI.Page
             )
         {
             lblError.Text = "Error: Release Values cannot be same. Please check and change it.";
-            ddlReleaseID1.SelectedIndex = 0;
-            ddlReleaseID2.SelectedIndex = 0;
+            fillEmptyDatatable();
+            ddlReleaseID1.SelectedIndex= 0;
+            ddlReleaseID2.SelectedIndex= 0;
             ddlReleaseID1.Focus();
 
         }
         else
         {
             BindGrid();
-
-            String cookieToInsertCompare = "Compare application=" + ddlApplicationName.SelectedValue.ToString();
-
-            cookieToInsertCompare += "|ReleaseID1=" + ddlReleaseID.SelectedValue.ToString();
-            cookieToInsertCompare += "|ReleaseID2=" + ddlReleaseID1.SelectedValue.ToString();
-            cookieToInsertCompare += "|ReleaseID3=" + ddlReleaseID2.SelectedValue.ToString();
-            cookieToInsertCompare += "|TransactionName=" + txtTransactionName.Text.ToString();
-
-            addCookiesInStack("mruComparison", cookieToInsertCompare);
-
-            cookieToInsertCompare = "";
         }
+        
     }
-
 
     private void BindGrid()
     {
@@ -281,7 +274,7 @@ public partial class _Default : System.Web.UI.Page
         using (SqlConnection con = new SqlConnection(constr))
         {
             String strSearch = "";
-
+            
             using (SqlCommand cmd = new SqlCommand())
             {
                 if (ddlReleaseID.SelectedIndex > 0)
@@ -290,11 +283,11 @@ public partial class _Default : System.Web.UI.Page
                     {
                         if (ddlReleaseID2.SelectedIndex > 0)
                         {
-                            strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRDetails] a";
+                            strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "'_SLA, ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRDetails] a";  
                         }
                         else
                         {
-                            strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRDetails] a ";
+                            strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" +  ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString()  + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRDetails] a ";
                         }
                     }
                     else
@@ -336,19 +329,7 @@ public partial class _Default : System.Web.UI.Page
                     }
                 }
 
-                // lblError.Text = strSearch;
-
-                //Query to filter out all NA
-                /*select distinct n.[Application Name], n.[Transaction Name],n.[2022.4_SLA]
-                ,n.[2022.4_TPS],n.[2023.6_SLA],n.[2023.6_TPS],n.[2023.7_SLA],n.[2023.7_TPS]
-                from [NFRDetails] m, (
-                SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='2022.4' THEN SLA END)),'NA') '2022.4_SLA', ISNULL(str(MAX(CASE WHEN releaseID='2023.6' THEN SLA END)),'NA') '2023.6_SLA',ISNULL(str(MAX(CASE WHEN releaseID='2023.7' THEN SLA END)),'NA') '2023.7_SLA', ISNULL(str(MAX(CASE WHEN releaseID='2022.4' THEN TPS END)),'NA') '2022.4_TPS', ISNULL(str(MAX(CASE WHEN releaseID='2023.6' THEN TPS END)),'NA') '2023.6_TPS', ISNULL(str(MAX(CASE WHEN releaseID='2023.7' THEN TPS END)),'NA') '2023.7_TPS'  FROM [dbo].[NFRDetails] a WHERE applicationName = 'Mobile' GROUP BY a.[applicationName],a.[transactionNames]
-                ) n
-                where n.[Application Name] = m.applicationName
-                and n.[Transaction Name] = m.transactionNames
-                and COALESCE(n.[2022.4_SLA], n.[2023.6_SLA] ,n.[2023.7_SLA]) != 'NA'
-                ;
-                */
+              // lblError.Text = strSearch;
 
                 DataTable dt = new DataTable();
 
@@ -361,7 +342,7 @@ public partial class _Default : System.Web.UI.Page
                     dt.Columns.Add("Release1_TPS");
                     dt.Columns.Add("Release2_SLA");
                     dt.Columns.Add("Release2_TPS");
-
+                    
                 }
                 else
                 {
@@ -373,11 +354,11 @@ public partial class _Default : System.Web.UI.Page
 
                     using (SqlDataAdapter sda = new SqlDataAdapter(cmd))
                     {
-
+                        
                         sda.Fill(dt);
                     }
                 }
-
+                
                 //retrive data
 
                 if (dt.Rows.Count == 0)
@@ -391,7 +372,7 @@ public partial class _Default : System.Web.UI.Page
                 else
                 {
                     totalRowCount = dt.Rows.Count;
-                    //                    pageSize = int.Parse(ddlGridviewPaging.SelectedItem.Value.ToString());
+//                    pageSize = int.Parse(ddlGridviewPaging.SelectedItem.Value.ToString());
 
                     Session["gridviewsourceCompare"] = dt;
                     GridView1.DataSource = dt;
@@ -409,7 +390,7 @@ public partial class _Default : System.Web.UI.Page
 
     protected void ddlReleaseID_SelectedIndexChanged(object sender, EventArgs e)
     {
-        if (ddlReleaseID.SelectedIndex > 0)
+        if(ddlReleaseID.SelectedIndex > 0)
         {
             lblError.Text = "";
         }
@@ -428,15 +409,15 @@ public partial class _Default : System.Web.UI.Page
     public void fillEmptyDatatable()
     {
         DataTable dt = new DataTable();
-        dt.Columns.Add("Application Name");
-        dt.Columns.Add("Transaction Name");
+        dt.Columns.Add("applicationName");
+        dt.Columns.Add("transactionName");
         dt.Columns.Add("Release1_SLA");
         dt.Columns.Add("Release1_TPS");
         dt.Columns.Add("Release2_SLA");
         dt.Columns.Add("Release2_TPS");
         GridView1.DataSource = dt; // new List<string>();
         GridView1.DataBind();
-
+        
     }
 
     public void resetAll()
@@ -445,8 +426,8 @@ public partial class _Default : System.Web.UI.Page
         ddlReleaseID.Items.Clear();
         ddlReleaseID1.Items.Clear();
         ddlReleaseID2.Items.Clear();
-        ddlApplicationName.SelectedIndex = 0;
-        ddlReleaseID.SelectedIndex = -1;
+        ddlApplicationName.SelectedIndex= 0;
+        ddlReleaseID.SelectedIndex= -1;
         ddlReleaseID1.SelectedIndex = -1;
         ddlReleaseID2.SelectedIndex = -1;
         txtTransactionName.Text = "";
@@ -459,7 +440,6 @@ public partial class _Default : System.Web.UI.Page
     protected void btnClear_Click(object sender, EventArgs e)
     {
         resetAll();
-        
     }
 
     protected void GridView1_PreRender(object sender, EventArgs e)
@@ -477,7 +457,7 @@ public partial class _Default : System.Web.UI.Page
     {
         List<string> trxNames = new List<string>();
         DataTable dt = HttpContext.Current.Session["TrxTableListCompare"] as DataTable;
-        trxNames = dt.AsEnumerable().Where(x => x.Field<String>("transactionNames").ToLower().Contains(prefixText.ToLower())).Select(x => x[0].ToString()).ToList();
+        trxNames = dt.AsEnumerable().Where(x => x.Field<String>("transactionNames").Contains(prefixText)).Select(x => x[0].ToString()).ToList();
         if (trxNames.Count <= 0)
         {
             for (int i = 0; i < dt.Rows.Count; i++)
@@ -505,109 +485,95 @@ public partial class _Default : System.Web.UI.Page
         SetFixedHeightForGridIfRowsAreLess(GridView1);
     }
 
+    //public void SetFixedHeightForGridIfRowsAreLess(GridView gv)
+    //{
+    //    double headerFooterHeight = gv.HeaderStyle.Height.Value + 35; //we set header height style=35px and there no footer  height so assume footer also same
+    //    double rowHeight = gv.RowStyle.Height.Value;
+    //    int gridRowCount = gv.Rows.Count;
+    //    if (gridRowCount <= gv.PageSize)
+    //    {
+    //        double height = (gridRowCount * rowHeight) + ((gv.PageSize - gridRowCount) * rowHeight) + headerFooterHeight;
+    //        //adjust footer height based on white space removal between footer and last row
+    //        height += 40;
+    //        gv.Height = new Unit(height);
+    //    }
+    //}
 
+    //public void createPagingSummaryOnPagerTemplate(object sender, int totalCount, int pageSize)
+    //{
+    //    GridView gv = sender as GridView;
+    //    if (gv != null)
+    //    {
+    //        //Get Bottom Pager Row from a gridview
+    //        GridViewRow row = gv.BottomPagerRow;
+
+    //        if (row != null)
+    //        {
+    //            //create new cell to add to page strip
+    //            TableCell pagingSummaryCell = new TableCell();
+    //            pagingSummaryCell.Text = DisplayCusotmPagingSummary(totalCount, gv.PageIndex, pageSize);
+    //            pagingSummaryCell.HorizontalAlign = HorizontalAlign.Right;
+    //            pagingSummaryCell.VerticalAlign = VerticalAlign.Middle;
+    //            pagingSummaryCell.Width = Unit.Percentage(100);
+    //            pagingSummaryCell.Height = Unit.Pixel(35);
+    //            //Getting table which shows PagingStrip
+    //            Table tbl = (Table)row.Cells[0].Controls[0];
+
+    //            gv.BottomPagerRow.Visible = true;
+    //            //BottomPagerRow will be visible false if pager doesn't have numbers and page number 1 will be displayed
+    //            //if (totalCount <= pageSize)
+    //            //{
+    //                //gv.BottomPagerRow.Visible = true;
+    //                //tbl.Rows[0].Cells.Clear();
+    //                //tbl.Width = Unit.Percentage(100);
+    //            //}
+    //            //Find table and add paging summary text
+    //            tbl.Rows[0].Cells.Add(pagingSummaryCell);
+    //            //assign header row color to footer row
+    //            //tbl.BackColor = Color.Red; // System.Drawing.ColorTranslator.FromHtml("#1AD9F2");
+    //            tbl.Width = Unit.Percentage(100);
+
+    //        }
+    //    }
+    //}
+
+    //public static string DisplayCusotmPagingSummary(int numberOfRecords, int currentPage, int pageSize)
+    //{
+    //    StringBuilder strDisplaySummary = new StringBuilder();
+    //    int numberOfPages;
+    //    if (numberOfRecords > pageSize)
+    //    {
+    //        // Calculating the total number of pages
+    //        numberOfPages = (int)Math.Ceiling((double)numberOfRecords / (double)pageSize);
+    //    }
+    //    else
+    //    {
+    //        numberOfPages = 1;
+    //    }
+    //    strDisplaySummary.Append("Showing ");
+    //    int floor = (currentPage * pageSize) + 1;
+    //    strDisplaySummary.Append(floor.ToString());
+    //    strDisplaySummary.Append("-");
+    //    int ceil = ((currentPage * pageSize) + pageSize);
+
+    //    if (ceil > numberOfRecords)
+    //    {
+    //        strDisplaySummary.Append(numberOfRecords.ToString());
+    //    }
+    //    else
+    //    {
+    //        strDisplaySummary.Append(ceil.ToString());
+    //    }
+
+    //    strDisplaySummary.Append(" of ");
+    //    strDisplaySummary.Append(numberOfRecords.ToString());
+    //    strDisplaySummary.Append(" results ");
+    //    return strDisplaySummary.ToString();
+    //}
 
     protected void GridView1_DataBound(object sender, EventArgs e)
     {
         createPagingSummaryOnPagerTemplate(sender, totalRowCount, pageSize);
-
     }
 
-    void retrieveStack()
-    {
-        phLinks.Controls.Clear();
-
-        HttpCookie cookieObj = Request.Cookies["mruComparison"];
-        string[] myArray;
-        //--- Check for null 
-        if (cookieObj != null)
-        {
-            enableCompare = true;
-            myArray = cookieObj.Value.Split(',');
-            for (int i = 0; i < myArray.Length; i++)
-            {
-                //lblError.Text = myArray[i]; 
-                //Create hyperlink for each cookie
-                AddLinkURL(myArray[i], myArray[i]);
-            }
-
-        }
-
-    }
-
-    private void AddLinkURL(string text, string url)
-    {
-        LinkButton hyperlink = new LinkButton();
-        hyperlink.ID = "HyperLink" + (phLinks.Controls.Count + 1); // Generate a unique ID for each link
-        hyperlink.Text = text;
-
-        hyperlink.Click += new EventHandler(getMethod);
-
-        phLinks.Controls.Add(hyperlink); // Add the link to a placeholder control (phLinks)
-        phLinks.Controls.Add(new LiteralControl("<br />"));
-
-        ScriptManager.RegisterClientScriptBlock(hyperlink as LinkButton, this.GetType(), "alert", "", true);
-    }
-
-    protected void getMethod(object sender, EventArgs e)
-    {
-        //  Response.Write("<script>alert('done'); </script>");
-        ddlApplicationName.ClearSelection();
-        ddlReleaseID.ClearSelection();
-        txtTransactionName.Text = string.Empty;
-
-        LinkButton h = sender as LinkButton;
-        //lblError.Text = h.Text;
-        String[] finalResult = null;
-        finalResult = h.Text.Split('|');
-
-        for (int j = 0; j < finalResult.Length; j++)
-        {
-            switch (finalResult[j].Split('=')[0])
-            {
-
-                case "Compare application":
-                    ddlApplicationName.ClearSelection();
-                    ddlApplicationName.Items.FindByText(finalResult[j].Split('=')[1]).Selected = true;
-                    ddlApplicationName_SelectedIndexChanged(this, EventArgs.Empty);
-                    break;
-                case "ReleaseID1":
-                    ddlReleaseID.ClearSelection();
-                    if (finalResult[j].Split('=')[1] != "0")
-                    {
-                        ddlReleaseID.Items.FindByText(finalResult[j].Split('=')[1]).Selected = true;
-                    }
-                    break;
-
-                case "ReleaseID2":
-                    ddlReleaseID1.ClearSelection();
-                    if (finalResult[j].Split('=')[1] != "0")
-                    {
-                        ddlReleaseID1.Items.FindByText(finalResult[j].Split('=')[1]).Selected = true;
-                    }
-                    break;
-                case "ReleaseID3":
-                    ddlReleaseID2.ClearSelection();
-                    if (finalResult[j].Split('=')[1] != "0")
-                    {
-                        ddlReleaseID2.Items.FindByText(finalResult[j].Split('=')[1]).Selected = true;
-                    }
-
-                    break;
-                case "TransactionName":
-                    txtTransactionName.Text = string.Empty;
-                    txtTransactionName.Text = finalResult[j].Split('=')[1];
-                    break;
-            }
-        }
-    }
-
-
-
-    protected void Button1_Click(object sender, EventArgs e)
-    {
-        retrieveStack();
-        mp1.Show();
-
-    }
 }

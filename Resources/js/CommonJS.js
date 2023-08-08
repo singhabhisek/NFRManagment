@@ -16,6 +16,15 @@ for (i = 0; i < dropdown.length; i++) {
 }
 
 
+/*Close Modal Pop Up on outside*/
+function pageLoad() {
+    var modalPopup = $find('mpe');
+    modalPopup.add_shown(function () {
+        modalPopup._backgroundElement.addEventListener("click", function () {
+            modalPopup.hide();
+        });
+    });
+};
 
 
 /*Confirmation Delete*/

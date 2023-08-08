@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Dashboard.aspx.cs" Inherits="Dashboard" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Dashboard-Old.aspx.cs" Inherits="Dashboard" %>
 
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
 
@@ -39,10 +39,9 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
-    <div id="div1" style="height: calc(100vh-20px);overflow-y: hidden;
-  display: flex;">
+    <div id="div1" style="margin-left:10px;">
 
-        <div style="margin-top: 80px; text-align: left; margin-left: 150px;overflow-y:auto">
+        <div<%-- style="margin-top: 80px; text-align: left; margin-left: 150px;"--%>>
             <%-- <h4 style="align-content: center; text-align: center">Search Non-Functional Records for Application</h4>
 
         <br />--%>
@@ -50,10 +49,10 @@
             <asp:UpdatePanel ID="upd1" runat="server">
                 <ContentTemplate>
                      <%--overflow-y: auto--%>
-                    <fieldset class="box-border" style="width:100%;margin-left:10px;">
+                    <fieldset class="box-border" style="width:100%; height:300px;overflow-y: auto;">
                         <legend  class="box-border">Search Records</legend>
 
-                        <div class="form-floating form-control-position" style="margin-left:35px;">
+                        <div class="form-floating form-control-position">
                             <asp:DropDownList CssClass="form-select form-select-sm" ID="ddlApplicationName" runat="server" OnSelectedIndexChanged="ddlApplicationName_SelectedIndexChanged" AutoPostBack="true"></asp:DropDownList>
                             <label for="ddlApplicationName">Select Application</label>
                         </div>
@@ -73,7 +72,7 @@
                             <label for="txtTransactionName">Search Transaction (Min 3 characters)</label>
                         </div>
                         <br />
-
+                        
                         <table style="margin-top: 10px;width:90%;">
                             <tr>
                                 <td colspan="3" align="right" style="width: 50%">
@@ -84,7 +83,7 @@
                     <asp:RegularExpressionValidator Font-Size="10px" ID="RegularExpressionValidator1" runat="server" ControlToValidate="txtTransactionName" ErrorMessage="Min three characters to search" ForeColor="Red" ValidationExpression="^[\s\S]{3,}$"></asp:RegularExpressionValidator>
                 </td>--%>
                             </tr>
-
+                             
                             <tr>
                                 <td colspan="3" align="left" style="width: 800px;">
                                     <asp:Label ID="lblError" runat="server" Font-Size="Small" ForeColor="Red"></asp:Label>
@@ -109,7 +108,7 @@
                                     </asp:DropDownList>
                                 </td>
                                 <td colspan="1" align="right">
-                                    <asp:ImageButton ID="btnExportExcel0" runat="server" ImageUrl="~/Resources/images/xl_down.png" AlternateText="Export to Excel" Height="30px" Width="40px" OnClick="btnExportExcel_Click" />
+                                    <asp:ImageButton ID="btnExportExcel0" runat="server" ImageUrl="~/Resources/images/xl_down.png" AlternateText="Export to Excel" Height="40px" Width="40px" OnClick="btnExportExcel_Click" />
                                 </td>
                             </tr>
                             <tr>
@@ -178,8 +177,8 @@
                                 </td>
                             </tr>
                         </table>
-
                     </fieldset>
+                   
 
                 </ContentTemplate>
             </asp:UpdatePanel>

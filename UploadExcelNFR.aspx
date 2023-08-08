@@ -7,19 +7,19 @@
     <script src="Resources/js/CommonJS.js" type="text/javascript"></script>
 
     <%--<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>--%>
-    
+
     <script type="text/javascript">
 
-       
+
         $('form').live("submit", function () {
             ShowProgress();
         });
     </script>
-    
+
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
-    <div style="margin-top: 80px; text-align: left; margin-left: 200px">
+    <div style="margin-top: 80px; text-align: left; margin-left: 200px;font-family:inherit;">
         <h3 style="align-content: center; text-align: center">File Upload Screen</h3>
 
         <br />
@@ -66,10 +66,10 @@
     </div>
 
     <div class="loading" align="center">
-    Loading. Please wait.<br />
-    <br />
-    <img src="Resources/images/loader.gif" height="30" width="30" alt="" />
-</div>
+        Loading. Please wait.<br />
+        <br />
+        <img src="Resources/images/loader.gif" height="30" width="30" alt="" />
+    </div>
 
 </asp:Content>
 

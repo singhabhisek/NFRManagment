@@ -12,17 +12,22 @@ using System.Web.UI.WebControls;
 using System.Web.Services;
 using System.Web.SessionState;
 using System.Text;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System.Runtime.Remoting.Contexts;
 
 namespace CommonLibraryFunctions
 {
-    
+
     /// <summary>
     /// Summary description for CommonMethods
     /// </summary>
     public class CommonMethods
     {
         public static int totalRowCount = 0;
-        public static int pageSize = 2;
+        public static int pageSize = 5;
+        const int listSize = 5;
+        public static string[] _mru;
+
         public static void resetGridView(GridView gridView)
         {
             gridView.DataSource = new List<string>();
@@ -127,7 +132,7 @@ namespace CommonLibraryFunctions
             return count;
         }
 
-        
+
 
         public static void ExportGridToExcel(GridView gridView)
         {
@@ -255,6 +260,10 @@ namespace CommonLibraryFunctions
                     //tbl.BackColor = Color.Red; // System.Drawing.ColorTranslator.FromHtml("#1AD9F2");
                     tbl.Width = Unit.Percentage(100);
 
+
+
+
+
                 }
             }
         }
@@ -293,6 +302,47 @@ namespace CommonLibraryFunctions
             return strDisplaySummary.ToString();
         }
 
+        public static void addCookiesInStack(String cookieName, String CheckStringInCookie)
+        {
+            HttpCookie cookie = HttpContext.Current.Request.Cookies[cookieName];
+            Queue<string> mru;
+            if (cookie != null)
+            {
+                mru = new Queue<string>(cookie.Value.Split(','));
+            }
+            else
+            {
+                mru = new Queue<string>();
+                cookie = new HttpCookie(cookieName);
+            }
+            String seletedValuesONScreen = CheckStringInCookie; // ddlApplicationName.SelectedIndex + "&" + ddlReleaseID.SelectedIndex + "&"  + txtTransactionName.Text;
 
+            if (!mru.Contains(seletedValuesONScreen))
+            {
+                if (mru.Count >= listSize) mru.Dequeue();
+
+                mru.Enqueue(seletedValuesONScreen);
+            }
+
+            _mru = mru.ToArray();
+
+            cookie.Value = String.Join(",", _mru);
+            cookie.Expires = DateTime.Now.AddDays(3);
+
+            try
+            {
+                var guid = Guid.NewGuid();
+                HttpContext.Current.Response.Cookies.Add(cookie);
+                HttpContext.Current.Response.Cookies.Add(new HttpCookie(guid.ToString(), string.Empty));
+                HttpContext.Current.Response.Cookies.Remove(guid.ToString());
+
+            }
+            catch (HttpException)
+            {
+                //This means the headers were already written,
+                //in which case we need not do anything.
+            }
+
+        }
     }
 }
