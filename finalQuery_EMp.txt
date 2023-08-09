@@ -1,0 +1,54 @@
+select x.emp_id,
+CASE WHEN
+	(x.salary > SAL ) THEN
+	 'Higher'  
+	ELSE 'LOWER'
+END AS 'Comparison'
+	from manager x,
+(SELECT distinct m.emp_id, m.manager_id, m.salary,
+COALESCE((SELECT SUM(CASE WHEN type = 'FTE' THEN salary END)
+			   FROM MANAGER
+			   WHERE manager_id = m.emp_id), 0) 
++
+COALESCE((SELECT MAX(CASE WHEN type = 'Contractor' THEN salary END)
+			   FROM MANAGER
+			   WHERE manager_id = m.emp_id), 0)  as 'SAL'
+FROM MANAGER m
+LEFT JOIN MANAGER r ON m.emp_id = r.manager_id) y
+where y.emp_id=x.emp_id and x.manager_id is null;
+
+
+
+select * from NFR;
+
+--SELECT distinct m.OperationName, m.MethodCall, m.SLA, m.CallType,
+--COALESCE((SELECT SUM(CASE WHEN p.Calltype = 'Sync' THEN p.SLA END)
+--			   FROM NFR p
+--			   WHERE p.MethodCall = m.OperationName), 0) 
+--+
+--COALESCE((SELECT MAX(CASE WHEN p.Calltype = 'Async' THEN p.SLA END)
+--			   FROM NFR p
+--			   WHERE m.OperationName = p.MethodCall), 0)  as 'SAL'
+--FROM NFR m
+--LEFT JOIN NFR r ON m.MethodCall= r.OperationName
+--where m.ApplicationName = 'AppName1';
+
+select ApplicationName, OperationName, SLA,TotalSyncSLA , MaxAsyncSLA,
+CASE WHEN TotalSyncSLA + MaxAsyncSLA = 0 then 'NA'
+	 ELSE
+		CASE WHEN SLA > TotalSyncSLA + MaxAsyncSLA  then 'Higher' 
+	
+	else 'lower' END
+	END 
+	as 'Comapre' FROM 
+(
+SELECT ApplicationName, OperationName, SLA,
+  SUM(CASE WHEN CallType = 'Sync' THEN dbo.GetNFRValueFunc(MethodCall)  ELSE 0 END) OVER (PARTITION BY OperationName) AS TotalSyncSLA,
+  MAX(CASE WHEN CallType = 'Async' THEN dbo.GetNFRValueFunc(MethodCall)  ELSE 0 END) OVER (PARTITION BY OperationName) AS MaxAsyncSLA
+FROM NFR
+) as X
+where ApplicationName = 'AppName1';
+
+
+
+select ApplicationName, OperationName, SLA, TotalSyncSLA, MaxAsyncSLA, CASE WHEN TotalSyncSLA + MaxAsyncSLA = 0 then 'NA' ELSE CASE WHEN SLA > TotalSyncSLA + MaxAsyncSLA then 'Higher' else 'Lower' END END as 'Compare' FROM ( SELECT ApplicationName, OperationName, SLA, SUM( CASE WHEN CallType = 'Sync' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY OperationName) AS TotalSyncSLA, MAX( CASE WHEN CallType = 'Async' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY OperationName) AS MaxAsyncSLA FROM ( SELECT ApplicationName, OperationName, MethodCall, CallType, SLA, CASE WHEN CallType = 'Async' THEN ( SELECT MAX(SLA) FROM NFR WHERE OperationName = t.MethodCall AND t.CallType = 'Async' ) WHEN CallType = 'Sync' THEN ( SELECT SUM(SLA) FROM NFR WHERE OperationName = t.MethodCall AND t.CallType = 'Sync' ) ELSE 0 END AS SLAComparison FROM NFR t where ApplicationName = 'AppName1' ) as x ) as p;
