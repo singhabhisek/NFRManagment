@@ -24,7 +24,7 @@ namespace CommonLibraryFunctions
     public class CommonMethods
     {
         public static int totalRowCount = 0;
-        public static int pageSize = 5;
+        public static int pageSize = 10;
         const int listSize = 5;
         public static string[] _mru;
 
