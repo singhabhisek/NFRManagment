@@ -18,23 +18,20 @@
             <img src="Resources/images/truist-logo-purple.svg" class="logo-style" />
             <div style="position: absolute; top: 15px; left: 160px; color: rgba(255,255,255,0.5); font-size: 24px; margin: 0;">| </div>
             <div style="position: absolute;display: inline; padding-left: 200px; justify-content: center; ">
-                | 
+               
                 <p class="banner-title">Performance Engineering Services</p>
                 <p class="banner-title" style="line-height: 20px;">NON-FUNCTIONAL REQUIREMENT MGMT (NFR) PORTAL</p>
 
             </div>
-            <div style="margin-left: 600px; justify-content: right;">
-                <p>
-                    <h4>Click<a style="color: white" href="Dashboard.aspx" target="_blank">here</a></h4>
-                </p>
+
+            <div style="position: absolute;display: inline; padding-left: 1150px; justify-content: right; text-align:right ">
+                
+                <p class="banner-title">Click  <a style="color: white" href="Dashboard" target="_blank">here for help</a></p>
+                <p class="banner-title" style="line-height: 20px;"><asp:Label ID="lblUserName" runat="server" Text="Label"></asp:Label></p>
 
             </div>
-            <div style="margin-left: 200px; justify-content: right;">
-                <p>
-                    <h5 style="color: white">
-                        <asp:Label ID="lblUserName" runat="server" Text="Label"></asp:Label></h5>
-                </p>
-            </div>
+
+          
         </div>
 
         <table style="width: 100%">
@@ -43,9 +40,9 @@
                     <!-- The sidebar -->
                     <div class="sidebar">
                         <div class="sidebar">
-                            <a href="Dashboard.aspx"><i class="fa fa-fw fa-home"></i>Home</a>
+                            <a href="Dashboard"><i class="fa fa-fw fa-home"></i>Home</a>
                             <%--<a href="Landing.aspx"><i class="fa fa-fw fa-dashboard"></i>Dashboard</a>--%>
-                            <div id="div1" runat="server"><a href="UploadExcelNFR.aspx"><i class="fa fa-fw fa-upload"></i>Upload NFR</a></div>
+                            <div id="div1" runat="server"><a href="UploadExcelNFR"><i class="fa fa-fw fa-upload"></i>Upload NFR</a></div>
                             <a href="CompareSLA.aspx"><i class="fa fa-fw fa-compare"></i>Compare NFR</a>
                             <%--<a href="Contacts.aspx"><i class="fa fa-fw fa-contact"></i>Contact</a>--%>
                             <button type="button" class="dropdown-btn">
@@ -53,7 +50,7 @@
                                 <i class="fa fa-caret-down"></i>
                             </button>
                             <div class="dropdown-container">
-                                <a href="#services"><i class="fa fa-fw fa-gear"></i>User Setup</a>
+                                <a href="UploadOperationDependency.aspx"><i class="fa fa-fw fa-gear"></i>Dependency Setup</a>
                                 <a href="UserAdministration.aspx"><i class="fa fa-fw fa-users"></i>User Roles</a>
                                 <a href="#services"><i class="fa fa-fw fa-image"></i>Others</a>
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySqlX.XDevAPI.Relational;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -20,6 +21,7 @@ public partial class Default5 : System.Web.UI.Page
 
             string query = "select distinct [applicationName] from NFRDetails";
             BindDropDownList(ddlApplicationName, query, "applicationName", "applicationName", "-Select Application-");
+            resetGridView(Gridview1);
 
         }
     }
@@ -50,8 +52,8 @@ public partial class Default5 : System.Web.UI.Page
     {
         DataTable dt = new DataTable();
         SqlConnection con = new SqlConnection(cs);
-        SqlDataAdapter adapt = new SqlDataAdapter("select ApplicationName, releaseID, transactionNames, SLA, IsNull(TotalSyncSLA,0), IsNull(MaxAsyncSLA,0), backendCall, CASE WHEN IsNull(TotalSyncSLA,0) + IsNull(MaxAsyncSLA,0) = 0 then 'NA' ELSE CASE WHEN SLA > TotalSyncSLA + MaxAsyncSLA then 'Higher' else 'Lower' END END as 'Compare' FROM (SELECT ApplicationName, transactionNames, releaseID, SLA, backendCall, SUM( CASE WHEN CallType = 'Sync' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY transactionNames) AS TotalSyncSLA, MAX( CASE WHEN CallType = 'Async' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY transactionNames) AS MaxAsyncSLA FROM ( SELECT ApplicationName, transactionNames, backendCall, CallType, SLA, releaseID, CASE WHEN CallType = 'Async' THEN ( SELECT MAX(SLA) FROM NFRDetails WHERE transactionNames = t.backendCall AND t.CallType = 'Async' and releaseID= '" + ddlReleaseID.SelectedValue + "') WHEN CallType = 'Sync' THEN ( SELECT SUM(SLA) FROM NFRDetails WHERE transactionNames = t.backendCall AND t.CallType = 'Sync' and releaseID= '" + ddlReleaseID.SelectedValue + "') ELSE 0 END AS SLAComparison FROM NFRDetails t where ApplicationName = '" + ddlApplicationName.SelectedValue + "' and releaseID= '" + ddlReleaseID.SelectedValue + "' ) as x ) as p;", con);
-        con.Open();
+        // SqlDataAdapter adapt = new SqlDataAdapter("select ApplicationName, releaseID, transactionName, SLA, IsNull(TotalSyncSLA,0), IsNull(MaxAsyncSLA,0), backendCall, CASE WHEN IsNull(TotalSyncSLA,0) + IsNull(MaxAsyncSLA,0) = 0 then 'NA' ELSE CASE WHEN SLA > TotalSyncSLA + MaxAsyncSLA then 'Higher' else 'Lower' END END as 'Compare' FROM (SELECT ApplicationName, transactionName, releaseID, SLA, backendCall, SUM( CASE WHEN CallType = 'Sync' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY transactionName) AS TotalSyncSLA, MAX( CASE WHEN CallType = 'Async' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY transactionName) AS MaxAsyncSLA FROM ( SELECT ApplicationName, transactionName, backendCall, CallType, SLA, releaseID, CASE WHEN CallType = 'Async' THEN ( SELECT MAX(SLA) FROM NFRDetails WHERE transactionName = t.backendCall AND t.CallType = 'Async' and releaseID= '" + ddlReleaseID.SelectedValue + "') WHEN CallType = 'Sync' THEN ( SELECT SUM(SLA) FROM NFRDetails WHERE transactionName = t.backendCall AND t.CallType = 'Sync' and releaseID= '" + ddlReleaseID.SelectedValue + "') ELSE 0 END AS SLAComparison FROM NFRDetails t where ApplicationName = '" + ddlApplicationName.SelectedValue + "' and releaseID= '" + ddlReleaseID.SelectedValue + "' ) as x ) as p;", con);
+        SqlDataAdapter adapt = new SqlDataAdapter("with NFRDetailDepend as (select t.applicationName, t.transactionName, t.releaseID, t.SLA, d.backendCall, d.callType from NFRDetails t, NFROperationDependency d where t.transactionName = d.transactionName) select ApplicationName, releaseID, transactionName, SLA, IsNull(TotalSyncSLA,0) + IsNull(MaxAsyncSLA,0) as 'TotalBackendCallDuration', backendCall, CASE WHEN IsNull(TotalSyncSLA,0) + IsNull(MaxAsyncSLA,0) = 0 then 'NA' ELSE CASE WHEN SLA > TotalSyncSLA + MaxAsyncSLA then 'Higher' else 'Lower' END END as 'Compare' FROM (SELECT ApplicationName, transactionName, releaseID, SLA, backendCall, SUM( CASE WHEN CallType = 'Sync' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY transactionName) AS TotalSyncSLA, MAX( CASE WHEN CallType = 'Async' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY transactionName) AS MaxAsyncSLA FROM ( SELECT ApplicationName, transactionName, backendCall, CallType, SLA, releaseID, CASE WHEN CallType = 'Async' THEN ( SELECT MAX(SLA) FROM NFRDetailDepend WHERE transactionName = t.backendCall AND t.CallType = 'Async') WHEN CallType = 'Sync' THEN ( SELECT SUM(SLA) FROM NFRDetailDepend WHERE transactionName = t.backendCall AND t.CallType = 'Sync' ) ELSE 0 END AS SLAComparison FROM NFRDetailDepend t where ApplicationName = '" + ddlApplicationName.SelectedValue + "' and releaseID= '" + ddlReleaseID.SelectedValue + "' ) as x ) as p;", con); con.Open();
         adapt.Fill(dt);
         con.Close();
         if (dt.Rows.Count > 0)
@@ -60,7 +62,7 @@ public partial class Default5 : System.Web.UI.Page
             DataTable combinedTable = new DataTable();
             combinedTable.Columns.Add("ApplicationName", typeof(string));
             combinedTable.Columns.Add("releaseID", typeof(string));
-            combinedTable.Columns.Add("transactionNames", typeof(string));
+            combinedTable.Columns.Add("transactionName", typeof(string));
             combinedTable.Columns.Add("SLA", typeof(Double));
             combinedTable.Columns.Add("backendCall", typeof(string));
             combinedTable.Columns.Add("Compare", typeof(string));
@@ -76,9 +78,10 @@ public partial class Default5 : System.Web.UI.Page
                 {
                     ApplicationName = row.Field<string>("ApplicationName"),
                     ReleaseID = row.Field<string>("ReleaseID"),
-                    TransactionNames = row.Field<string>("TransactionNames"),
+                    transactionName = row.Field<string>("transactionName"),
                     SLA = row.Field<Double>("SLA"),
-                    Compare = row.Field<string>("Compare")
+                    Compare = row.Field<string>("Compare"),
+                    TotalBackendCallDuration = row.Field<Double>("TotalBackendCallDuration")
                 });
 
             // Iterate through each group and concatenate the BackendCall values
@@ -87,14 +90,17 @@ public partial class Default5 : System.Web.UI.Page
                 var backendCalls = group.Select(row => row.Field<string>("BackendCall"))
                                         .Where(call => !string.IsNullOrEmpty(call));
 
+                
+
                 // Combine the multiple backend call values into a string
-                string concatenatedBackendCalls = string.Join(",", backendCalls);
+                string concatenatedBackendCalls = "<b>Backend Duration (sec)</b>: " + group.Key.TotalBackendCallDuration + "<br><b>Backend Calls:</b> <br>";
+                    concatenatedBackendCalls +=  string.Join(",<br>", backendCalls);
 
                 // Add a new row to the newDataTable with the combined values
                 combinedTable.Rows.Add(
                     group.Key.ApplicationName,
                     group.Key.ReleaseID,
-                    group.Key.TransactionNames,
+                    group.Key.transactionName,
                     group.Key.SLA,
                     concatenatedBackendCalls,
                     group.Key.Compare
@@ -164,18 +170,20 @@ public partial class Default5 : System.Web.UI.Page
             }
         }
 
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            // Get the Label and Panel controls
-            Label lblMouseover = (Label)e.Row.FindControl("lblMouseover");
-            Panel pnlDetails = (Panel)e.Row.FindControl("pnlDetails");
+        //if (e.Row.RowType == DataControlRowType.DataRow)
+        //{
+        //    e.Row.Cells[4].ToolTip = "Shows higher or lower than backend calls";
 
-            // Set the client-side script for mouseover and mouseout events
-            if (lblMouseover != null && pnlDetails != null)
-            {
-                lblMouseover.Attributes["onmouseover"] = $"ShowDetails(this, '{pnlDetails.ClientID}');";
-                lblMouseover.Attributes["onmouseout"] = $"HideDetails(this, '{pnlDetails.ClientID}');";
-            }
-        }
+        //    // Get the Label and Panel controls
+        //    //Label lblMouseover = (Label)e.Row.FindControl("lblMouseover");
+        //    //Panel pnlDetails = (Panel)e.Row.FindControl("pnlDetails");
+
+        //    //// Set the client-side script for mouseover and mouseout events
+        //    //if (lblMouseover != null && pnlDetails != null)
+        //    //{
+        //    //    lblMouseover.Attributes["onmouseover"] = $"ShowDetails(this, '{pnlDetails.ClientID}');";
+        //    //    lblMouseover.Attributes["onmouseout"] = $"HideDetails(this, '{pnlDetails.ClientID}');";
+        //    //}
+        //}
     }
 }

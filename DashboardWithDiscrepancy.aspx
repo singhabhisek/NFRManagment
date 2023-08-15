@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Dashboard.aspx.cs" Inherits="Dashboard" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="DashboardWithDiscrepancy.aspx.cs" Inherits="DashboardWithDiscrepancy" %>
 
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
 
@@ -10,7 +10,8 @@
     <%-- <link rel="stylesheet" href="Bootstrap.css" />--%>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.css"/>
-      <link rel="stylesheet" href="Resources/css/Ultimate.css" />
+      
+    <link rel="stylesheet" href="Resources/css/Ultimate.css" />
     <script src="Resources/js/CommonJS.js" type="text/javascript"></script>
     <script src="Resources/js/jquery.min.js"></script>
     <link href="Resources/css/jquery-ui.css" rel="stylesheet" type="text/css" />
@@ -21,20 +22,34 @@
         }
     </style>
 
-    <script type="text/javascript">
-        //function pageLoad() {
-        //    var modalPopup = $find('mpe');
-        //    modalPopup.add_shown(function () {
-        //        modalPopup._backgroundElement.addEventListener("click", function () {
-        //            modalPopup.hide();
-        //        });
-        //    });
-        //};
-    </script>
-    <style type="text/css">
-      
+
+    <style>
+        .modalPopup {
+            background-color: #FFFFFF;
+            border-width: 1px;
+            border-style: solid;
+            margin: 10px;
+            padding: 10px;
+            width: auto;
+            height: auto;
+            text-align:left;
+        }
+
+        #tooltip {
+            position: absolute;
+            z-index: 3000;
+            border: 1px solid #111;
+            background-color: #FEE18D;
+            padding: 5px;
+            opacity: 0.85;
+        }
+
+            #tooltip h3, #tooltip div {
+                margin: 0;
+            }
     </style>
 
+    
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
@@ -109,7 +124,7 @@
                                     </asp:DropDownList>
                                 </td>
                                 <td colspan="1" align="right">
-                                    <asp:ImageButton ID="btnExportExcel0" runat="server" ImageUrl="~/Resources/images/xl_down.png" AlternateText="Export to Excel" Height="30px" Width="40px" OnClick="btnExportExcel_Click" />
+<%--                                    <asp:ImageButton ID="btnExportExcel0" runat="server" ImageUrl="~/Resources/images/xl_down.png" AlternateText="Export to Excel" Height="30px" Width="40px" OnClick="btnExportExcel_Click" />--%>
                                 </td>
                             </tr>
                             <tr>
@@ -117,59 +132,65 @@
                                     <asp:GridView ID="GridView1" ShowHeaderWhenEmpty="True" EmptyDataText="No records Found" runat="server" AutoGenerateColumns="False" AllowPaging="True"
                                         OnPageIndexChanging="OnPageIndexChanging" OnRowCancelingEdit="GridView1_RowCancelingEdit" OnRowDeleting="GridView1_RowDeleting" OnRowEditing="GridView1_RowEditing" OnRowUpdating="GridView1_RowUpdating"
                                         CssClass="table table-striped table-bordered table-hover gvstyling tr th"
-                                        DataKeyNames="ID" enablepagingandcallback="false" PageSize="5" OnRowDataBound="GridView1_RowDataBound" OnPreRender="GridView1_PreRender" OnDataBound="GridView1_DataBound">
+                                        enablepagingandcallback="false" PageSize="5" OnRowDataBound="GridView1_RowDataBound" OnPreRender="GridView1_PreRender" OnDataBound="GridView1_DataBound">
                                         <PagerStyle CssClass="pagination-ys" HorizontalAlign="Left" />
 
                                         <PagerSettings Mode="Numeric" FirstPageText="First" PreviousPageText="Previous" NextPageText="Next" LastPageText="Last" />
                                         <Columns>
-                                            <asp:BoundField ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="applicationName" HeaderText="Application Name">
-                                                <ItemStyle HorizontalAlign="Center" Width="200px"></ItemStyle>
-                                            </asp:BoundField>
-                                            <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="releaseID" HeaderText="Release Id">
-                                                <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
-                                            </asp:BoundField>
-                                            <asp:BoundField ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="businessScenario" HeaderText="Business Scenario">
-                                                <ItemStyle HorizontalAlign="Center" Width="200px"></ItemStyle>
-                                            </asp:BoundField>
-                                            <asp:BoundField ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="transactionName" HeaderText="Transaction Name">
-                                                <ItemStyle HorizontalAlign="Center" Width="200px"></ItemStyle>
-                                            </asp:BoundField>
+                        <asp:BoundField ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="ApplicationName" HeaderText="Application Name">
+                            <ItemStyle HorizontalAlign="Center" Width="200px"></ItemStyle>
+                        </asp:BoundField>
+                        <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="releaseID" HeaderText="Release Id">
+                            <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
+                        </asp:BoundField>
 
-                                            <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="SLA" HeaderText="SLA (Sec)">
-                                                <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
-                                            </asp:BoundField>
-                                            <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="TPS" HeaderText="TPS">
-                                                <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
-                                            </asp:BoundField>
-                                            <asp:BoundField ItemStyle-Width="150px" ItemStyle-HorizontalAlign="Center" DataField="Comments" HeaderText="Comments" Visible="true">
-                                                <ItemStyle HorizontalAlign="Center" Width="150px"></ItemStyle>
-                                            </asp:BoundField>
-                                            
-                                            <asp:CommandField ShowEditButton="True" Visible="true" HeaderText="Edit" />
+                        <asp:BoundField ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="transactionName" HeaderText="Transaction Name">
+                            <ItemStyle HorizontalAlign="Center" Width="200px"></ItemStyle>
+                        </asp:BoundField>
+
+                        <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="SLA" HeaderText="SLA (Sec)">
+                            <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
+                        </asp:BoundField>
+                        <%--<asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="TotalSyncSLA" HeaderText="TotalSyncSLA">
+                        <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
+                    </asp:BoundField>
+                    <asp:BoundField ItemStyle-Width="150px" ItemStyle-HorizontalAlign="Center" DataField="MaxAsyncSLA" HeaderText="MaxAsyncSLA" >
+                        <ItemStyle HorizontalAlign="Center" Width="150px"></ItemStyle>
+                    </asp:BoundField>--%>
+
+                        <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="backendCall" HeaderText="Backend Call" Visible="false">
+                            <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
+                        </asp:BoundField>
+                        <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="Compare" HeaderText="Compare" Visible="false">
+                            <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
+                        </asp:BoundField>
+                        <asp:TemplateField ItemStyle-Width="100px" HeaderText="Comparison">
+                            <ItemTemplate>
+                                <asp:Image ID="imgStatus" ToolTip="Shows high/low for comaprison" Height="18px" Width="18px" runat="server" />
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField ItemStyle-Width="100px">
+                            <ItemTemplate>
+                                <asp:Panel ID="Panel1" runat="server">
+                                    
+                                    <asp:Image ID="Label4" runat="server" ImageUrl="~/Resources/images/user-solid.svg" Width="15px" Height="15px"></asp:Image>
+                                </asp:Panel>
+                                <cc1:HoverMenuExtender ID="HoverMenuExtender1" runat="server" PopupControlID="PopupMenu"
+                                    TargetControlID="Panel1" PopupPosition="Bottom">
+                                </cc1:HoverMenuExtender>
+                                <asp:Panel ID="PopupMenu" runat="server" CssClass="modalPopup">
+                                    <asp:Label ID="Label1" runat="server" Style="align-text:left" Text='<%# Eval("backendCall") %>'></asp:Label>
+                                    <br />
+                                    <hr />
+
+                                </asp:Panel>
+                            </ItemTemplate>
+                        </asp:TemplateField>
 
 
-                                            <asp:TemplateField HeaderText="Delete">
-                                                <ItemTemplate>
-                                                    <asp:LinkButton  ID="lnkDelete" CommandArgument='<%# Eval("ID") %>' OnClick="DeleteRecord" runat="server" Text="Delete"></asp:LinkButton>
-                                                    <cc1:ConfirmButtonExtender ID="cbe" runat="server" DisplayModalPopupID="mpe" TargetControlID="lnkDelete"></cc1:ConfirmButtonExtender>
-                                                    <cc1:ModalPopupExtender ID="mpe" runat="server" PopupControlID="pnlPopup" TargetControlID="lnkDelete" OkControlID="btnYes"
-                                                        CancelControlID="btnNo" BackgroundCssClass="modalBackground">
-                                                    </cc1:ModalPopupExtender>
-                                                    <asp:Panel ID="pnlPopup" runat="server" CssClass="modalPopup" Style="display: none">
-                                                        <div class="header">
-                                                            Confirmation
-                                                        </div>
-                                                        <div class="body">
-                                                            Do you want to delete this record?
-                                                        </div>
-                                                        <div class="footer" align="center">
-                                                            <asp:Button ID="btnYes" class="btn btn-primary btn-xs" runat="server" Text="Yes" />
-                                                            <asp:Button ID="btnNo" class="btn btn-primary btn-xs" runat="server" Text="No" />
-                                                        </div>
-                                                    </asp:Panel>
-                                                </ItemTemplate>
-                                            </asp:TemplateField>
-                                        </Columns>
+                    </Columns>
+
 
                                     </asp:GridView>
 

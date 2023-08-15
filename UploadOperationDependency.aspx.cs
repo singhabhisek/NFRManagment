@@ -10,7 +10,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-public partial class UploadExcelNFR : System.Web.UI.Page
+public partial class UploadOperationDependency : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -83,7 +83,7 @@ public partial class UploadExcelNFR : System.Web.UI.Page
                     DataTable dataTable = new DataTable();
                     dataTable.Load(reader1);
 
-                    string[] stringArray = { "ApplicationName", "ReleaseID", "BusinessScenario", "TransactionName", "SLA", "TPS",  "Comments" };
+                    string[] stringArray = { "ApplicationName", "ReleaseID", "BusinessScenario", "TransactionName", "BackendCall", "CallType" };
                     foreach (DataColumn column in dataTable.Columns)
                     {
                         string columnName = column.ColumnName;
@@ -119,7 +119,7 @@ public partial class UploadExcelNFR : System.Web.UI.Page
                             using (SqlConnection connection1 = new SqlConnection(connSqlString))
                             {
                                 //String queryInsert = "INSERT INTO [dbo].[NFRDetails] ([applicationName],[releaseID],[businessScenario],[transactionName],[SLA],[TPS],[backendCall],[callType]) VALUES \r\n(@applicationName, @releaseID, @businessScenario, @transactionName, @SLA, @TPS, @backendCall, @callType) ";
-                                using (SqlCommand cmd = new SqlCommand("NFRDetails_InsertUpdate", connection1))
+                                using (SqlCommand cmd = new SqlCommand("NFRDependency_InsertUpdate", connection1))
                                 {
                                     {
                                         try
@@ -140,9 +140,8 @@ public partial class UploadExcelNFR : System.Web.UI.Page
                                                 cmd.Parameters.Add("@releaseID", SqlDbType.VarChar, 255).Value = reader[1].ToString();
                                                 cmd.Parameters.Add("@businessScenario", SqlDbType.VarChar, 255).Value = reader[2].ToString();
                                                 cmd.Parameters.Add("@transactionName", SqlDbType.VarChar, 255).Value = reader[3].ToString();
-                                                cmd.Parameters.Add("@SLA", SqlDbType.Float, 10).Value = reader[4].ToString();
-                                                cmd.Parameters.Add("@TPS", SqlDbType.Float, 100).Value = reader[5].ToString();
-                                                cmd.Parameters.Add("@Comments", SqlDbType.VarChar, 255).Value = reader[6].ToString();
+                                                cmd.Parameters.Add("@backendCall", SqlDbType.VarChar, 255).Value = reader[4].ToString();
+                                                cmd.Parameters.Add("@callType", SqlDbType.VarChar, 255).Value = reader[5].ToString();
                                                 cmd.Parameters.Add("@createdBy", SqlDbType.VarChar, 255).Value = createdBy;
                                                 cmd.Parameters.Add("@modifiedBy", SqlDbType.VarChar, 255).Value = updatedBy;
                                                 cmd.Parameters.Add("@retValue", SqlDbType.VarChar, 50);

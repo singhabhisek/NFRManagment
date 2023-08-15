@@ -49,6 +49,16 @@
                                 </EditItemTemplate>
                             </asp:TemplateField>
 
+                            <asp:TemplateField HeaderText="Status" ItemStyle-Width="150">
+                                <ItemTemplate>
+                                    <asp:Label ID="lblStatus" runat="server" Text='<%# Eval("Status") %>'></asp:Label>
+                                </ItemTemplate>
+                                <EditItemTemplate>
+                                    <asp:DropDownList ID="ddlStatus" runat="server">
+                                    </asp:DropDownList>
+                                </EditItemTemplate>
+                                <ItemStyle Width="150px" />
+                            </asp:TemplateField>
 
 
                             <asp:CommandField ButtonType="Link" ShowEditButton="true" ShowDeleteButton="true"
@@ -68,13 +78,20 @@
 
                             <tr style="font-size: 11px">
 
-                                <td style="text-align: right">User ID:</td>
+                                <td style="text-align: right">User ID:  </td>
                                 <td>
                                     <asp:TextBox ID="txtUserID" class="select-dropdown" runat="server" Width="140" />
                                 </td>
-                                <td style="text-align: right">Role Name:</td>
+                                <td style="text-align: right">  Role Name:  </td>
                                 <td>
                                     <asp:DropDownList ID="ddlRoles" class="select-dropdown" runat="server"></asp:DropDownList>
+                                </td>
+
+                                <td style="text-align: right">  Status:  </td>
+
+                                <td>
+                                    <asp:DropDownList ID="ddlStatus" class="select-dropdown" runat="server">
+                                         </asp:DropDownList>
                                 </td>
 
                                 <td style="width: 150px; text-align: right; margin-left: 10px">

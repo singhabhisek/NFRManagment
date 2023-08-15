@@ -26,10 +26,16 @@ public partial class UserAdministration : System.Web.UI.Page
 
                 if (!IsPostBack)
                 {
-                    ddlRoles.DataSource = fillDropdownlist();
+                    ddlRoles.DataSource = RolesDropdownlist();
                     ddlRoles.DataTextField = "Roles";
                     ddlRoles.DataValueField = "Roles";
                     ddlRoles.DataBind();
+
+                    ddlStatus.DataSource = StatusDropdownlist();
+                    ddlStatus.DataTextField = "Status";
+                    ddlStatus.DataValueField = "Status";
+                    ddlStatus.DataBind();
+
                     this.BindGrid();
                 }
             }
@@ -49,11 +55,11 @@ public partial class UserAdministration : System.Web.UI.Page
     {
         string UserID = txtUserID.Text;
         string Roles = ddlRoles.SelectedValue.ToString();
-
+        String Status = "ACTIVE";
         txtUserID.Text = "";
         ddlRoles.SelectedIndex = -1;
 
-        string query = "INSERT INTO UserRoles VALUES(@UserID, @Roles)";
+        string query = "INSERT INTO UserRoles VALUES(@UserID, @Roles, @Status)";
         string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         using (SqlConnection con = new SqlConnection(constr))
         {
@@ -61,6 +67,7 @@ public partial class UserAdministration : System.Web.UI.Page
             {
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 cmd.Parameters.AddWithValue("@Roles", Roles);
+                cmd.Parameters.AddWithValue("@Status", Status);
                 cmd.Connection = con;
                 con.Open();
                 cmd.ExecuteNonQuery();
@@ -89,17 +96,25 @@ public partial class UserAdministration : System.Web.UI.Page
         if (e.Row.RowType == DataControlRowType.DataRow && GridView1.EditIndex == e.Row.RowIndex)
         {
             DropDownList ddlRoles = (DropDownList)e.Row.FindControl("ddlRoles");
-            ddlRoles.DataSource = fillDropdownlist();
+            ddlRoles.DataSource = RolesDropdownlist();
             ddlRoles.DataTextField = "Roles";
             ddlRoles.DataValueField = "Roles";
             ddlRoles.DataBind();
 
-            //Add Default Item in the DropDownList.
-            //ddlRoles.Items.Insert(0, new ListItem("Please select"));
-
-            //Select the Country of Customer in DropDownList.
+            //Select the Role of User in DropDownList.
             string selectedRole = DataBinder.Eval(e.Row.DataItem, "Roles").ToString().ToUpper();
             ddlRoles.Items.FindByValue(selectedRole).Selected = true;
+
+
+            DropDownList ddlStatus = (DropDownList)e.Row.FindControl("ddlStatus");
+            ddlStatus.DataSource = StatusDropdownlist();
+            ddlStatus.DataTextField = "Status";
+            ddlStatus.DataValueField = "Status";
+            ddlStatus.DataBind();
+
+            //Select the Role of User in DropDownList.
+            string selectedStatus = DataBinder.Eval(e.Row.DataItem, "Status").ToString().ToUpper();
+            ddlStatus.Items.FindByValue(selectedStatus).Selected = true;
         }
     }
 
@@ -116,8 +131,9 @@ public partial class UserAdministration : System.Web.UI.Page
     {
         GridViewRow row = GridView1.Rows[e.RowIndex];
         string UserID = (row.FindControl("txtUserId") as TextBox).Text;
+        string Status = (row.FindControl("ddlStatus") as DropDownList).SelectedValue.ToString();
         string Roles = (row.FindControl("ddlRoles") as DropDownList).SelectedValue.ToString();
-        string query = "UPDATE UserRoles SET Roles=@Roles WHERE UserID=@UserID";
+        string query = "UPDATE UserRoles SET Roles=@Roles, Status = @Status WHERE UserID=@UserID";
         string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         using (SqlConnection con = new SqlConnection(constr))
         {
@@ -125,6 +141,7 @@ public partial class UserAdministration : System.Web.UI.Page
             {
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 cmd.Parameters.AddWithValue("@Roles", Roles);
+                cmd.Parameters.AddWithValue("@Status", Status);
                 cmd.Connection = con;
                 con.Open();
                 cmd.ExecuteNonQuery();
@@ -169,7 +186,7 @@ public partial class UserAdministration : System.Web.UI.Page
     private void BindGrid()
     {
 
-        GridView1.DataSource = GetData("SELECT UserID, Roles FROM UserRoles");
+        GridView1.DataSource = GetData("SELECT UserID, Roles, Status FROM UserRoles");
         totalRowCount = (GridView1.DataSource as DataSet).Tables[0].Rows.Count;
 
         GridView1.DataBind();
@@ -181,7 +198,7 @@ public partial class UserAdministration : System.Web.UI.Page
         this.BindGrid();
     }
 
-    public DataTable fillDropdownlist()
+    public DataTable RolesDropdownlist()
     {
         ddlRoles.Items.Clear();
 
@@ -192,6 +209,19 @@ public partial class UserAdministration : System.Web.UI.Page
         dt.Rows.Add("POWERUSR");
         dt.Rows.Add("USERS");
 
+        return dt;
+    }
+
+    public DataTable StatusDropdownlist()
+    {
+        ddlStatus.Items.Clear();
+
+        DataTable dt = new DataTable();
+        DataColumn dc = new DataColumn("Status", typeof(String));
+        dt.Columns.Add(dc);
+        dt.Rows.Add("ACTIVE");
+        dt.Rows.Add("INACTIVE");
+       
         return dt;
     }
 

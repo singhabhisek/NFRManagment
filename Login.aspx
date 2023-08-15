@@ -30,7 +30,7 @@
     <%--<asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>--%>
 
     <div>
-        <table style="width: 100%; background-color: #0099FF; height: 30px">
+        <table style="width: 100%; background-color: #0099FF; margin-left:100px">
             <tr>
                 <td style="width: 20%">
                     <asp:Image ID="Image1" runat="server" AlternateText="Home" ImageUrl="~/Images/test_logo.png" Height="54px" Width="83px" /></td>
@@ -46,10 +46,10 @@
             </div>
 
             <div class="float-child">
-                <table style="table-layout: fixed; width: 400px; margin-left: auto; margin-right: auto; margin-top: 100px; margin-bottom: auto; top: 50px;">
+                <table style="table-layout: auto; width: 400px; margin-left: auto; margin-right: auto; margin-top: 100px; margin-bottom: auto; top: 50px;">
 
                     <tr>
-                        <td>
+                        <td colspan="2">
                             <br />
                         </td>
                     </tr>
@@ -58,7 +58,7 @@
                         <td style="vertical-align: middle">
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                                <asp:TextBox ID="txtUserName" runat="server" placeholder=" UserName"
+                                <asp:TextBox ID="txtUserName" runat="server" placeholder=" UserName" Font-Size="14px"
                                     CssClass="form-control"></asp:TextBox><br />
                             </div>
                             <asp:RequiredFieldValidator ID="rfvUserName" runat="server"
@@ -67,11 +67,14 @@
                         </td>
                     </tr>
                     <tr>
+                        <td colspan="2"><br /></td>
+                    </tr>
+                    <tr>
                         <td style="text-align: right; vertical-align: middle"><span class="txt">Password: <span class="redstar">*</span> &nbsp;&nbsp;</span></td>
                         <td style="vertical-align: middle">
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                                <asp:TextBox ID="txtPwd" CssClass="form-control form-control-sm" runat="server" TextMode="Password" placeholder=" Password"></asp:TextBox>
+                                <asp:TextBox ID="txtPwd" CssClass="form-control form-control-sm" Font-Size="14px" runat="server" TextMode="Password" placeholder=" Password"></asp:TextBox>
                             </div>
                             <br />
                             <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server"
@@ -81,7 +84,7 @@
                     </tr>
                 </table>
 
-                <div style="text-align: right;display: inline;margin-left: 200px;margin-top:0px">
+                <div style="text-align: right;display: inline;margin-left: 150px;margin-top:0px">
                     <asp:Button ID="btnSubmit" runat="server" CssClass="btn btn-primary" Text="Login" OnClick="btnSubmit_Click" />
                    <asp:Button ID="btnclose" runat="server" Text="Back" CssClass="btn btn-secondary" CausesValidation="false" />
                 </div>

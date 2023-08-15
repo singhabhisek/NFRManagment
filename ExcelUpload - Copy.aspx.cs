@@ -62,7 +62,7 @@ public partial class ExcelUpload : System.Web.UI.Page
                     dtExcelData.Columns.AddRange(new DataColumn[8] { new DataColumn("applicationName", typeof(string)),
                 new DataColumn("releaseID", typeof(string)),
                 new DataColumn("businessScenario", typeof(string)),
-                new DataColumn("transactionNames", typeof(string)),
+                new DataColumn("transactionName", typeof(string)),
                 new DataColumn("SLA", typeof(decimal)),
                 new DataColumn("TPS", typeof(decimal)),
                 new DataColumn("backendCall", typeof(string)),
@@ -85,7 +85,7 @@ public partial class ExcelUpload : System.Web.UI.Page
                     DataTable dataTable = new DataTable();
                     dataTable.Load(reader1);
 
-                    string[] stringArray = { "applicationName", "releaseID", "transactionNames", "SLA", "TPS", "businessScenario", "backendCall", "callType" };
+                    string[] stringArray = { "applicationName", "releaseID", "transactionName", "SLA", "TPS", "businessScenario", "backendCall", "callType" };
                     foreach (DataColumn column in dataTable.Columns)
                     {
                         string columnName = column.ColumnName;
@@ -115,7 +115,7 @@ public partial class ExcelUpload : System.Web.UI.Page
                             recordCount++;
                             using (SqlConnection connection1 = new SqlConnection(connSqlString))
                             {
-                                String queryInsert = "INSERT INTO [dbo].[NFRDetails] ([applicationName],[releaseID],[businessScenario],[transactionNames],[SLA],[TPS],[backendCall],[callType]) VALUES \r\n(@applicationName, @releaseID, @businessScenario, @transactionNames, @SLA, @TPS, @backendCall, @callType) ";
+                                String queryInsert = "INSERT INTO [dbo].[NFRDetails] ([applicationName],[releaseID],[businessScenario],[transactionName],[SLA],[TPS],[backendCall],[callType]) VALUES \r\n(@applicationName, @releaseID, @businessScenario, @transactionName, @SLA, @TPS, @backendCall, @callType) ";
                                 using (SqlCommand CCC = new SqlCommand(queryInsert, connection1))
                                 {
                                     try
@@ -133,7 +133,7 @@ public partial class ExcelUpload : System.Web.UI.Page
                                             CCC.Parameters.Add("@applicationName", SqlDbType.VarChar, 255).Value = reader[0].ToString();
                                             CCC.Parameters.Add("@releaseID", SqlDbType.VarChar, 255).Value = reader[1].ToString();
                                             CCC.Parameters.Add("@businessScenario", SqlDbType.VarChar, 255).Value = reader[2].ToString();
-                                            CCC.Parameters.Add("@transactionNames", SqlDbType.VarChar, 255).Value = reader[3].ToString();
+                                            CCC.Parameters.Add("@transactionName", SqlDbType.VarChar, 255).Value = reader[3].ToString();
                                             CCC.Parameters.Add("@SLA", SqlDbType.Float, 10).Value = reader[4].ToString();
                                             CCC.Parameters.Add("@TPS", SqlDbType.Float, 100).Value = reader[5].ToString();
                                             CCC.Parameters.Add("@backendCall", SqlDbType.VarChar, 255).Value = reader[6].ToString();

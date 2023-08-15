@@ -65,7 +65,7 @@ public partial class Dashboard : System.Web.UI.Page
         DataTable dt = HttpContext.Current.Session["TrxTableListDashboard"] as DataTable;
         try
         {
-            trxNames = dt.AsEnumerable().Where(x => x.Field<String>("transactionNames").ToLower().Contains(prefixText.ToLower())).Select(x => x[0].ToString()).ToList();
+            trxNames = dt.AsEnumerable().Where(x => x.Field<String>("transactionName").ToLower().Contains(prefixText.ToLower())).Select(x => x[0].ToString()).ToList();
             if (trxNames.Count <= 0)
             {
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -177,29 +177,27 @@ public partial class Dashboard : System.Web.UI.Page
         TextBox applicationName = (TextBox)row.Cells[0].Controls[0];
         TextBox releaseID = (TextBox)row.Cells[1].Controls[0];
         TextBox businessScenario = (TextBox)row.Cells[2].Controls[0];
-        TextBox transactionNames = (TextBox)row.Cells[3].Controls[0];
+        TextBox transactionName = (TextBox)row.Cells[3].Controls[0];
         TextBox SLA = (TextBox)row.Cells[4].Controls[0];
         TextBox TPS = (TextBox)row.Cells[5].Controls[0];
-        TextBox backendCall = (TextBox)row.Cells[6].Controls[0];
-        TextBox callType = (TextBox)row.Cells[7].Controls[0];
+        TextBox Comments = (TextBox)row.Cells[6].Controls[0];
         string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         SqlConnection conn = new SqlConnection(constr);
 
         using (SqlConnection con = new SqlConnection(constr))
         {
-            using (SqlCommand cmd = new SqlCommand("UPDATE NFRDetails SET applicationName = @applicationName, releaseID = @releaseID , businessScenario = @businessScenario , transactionNames = @transactionNames  , SLA = @SLA  , TPS = @TPS  , backendCall = @backendCall  , callType = @callType  WHERE Id = @Id"))
+            using (SqlCommand cmd = new SqlCommand("UPDATE NFRDetails SET applicationName = @applicationName, releaseID = @releaseID , businessScenario = @businessScenario , transactionName = @transactionName  , SLA = @SLA  , TPS = @TPS  , Comments = @Comments  WHERE Id = @Id"))
             {
                 cmd.Parameters.AddWithValue("@Id", Id);
 
                 cmd.Parameters.AddWithValue("@applicationName", applicationName.Text);
                 cmd.Parameters.AddWithValue("@releaseID", releaseID.Text);
                 cmd.Parameters.AddWithValue("@businessScenario", businessScenario.Text);
-                cmd.Parameters.AddWithValue("@transactionNames", transactionNames.Text);
+                cmd.Parameters.AddWithValue("@transactionName", transactionName.Text);
                 cmd.Parameters.AddWithValue("@SLA", SLA.Text);
                 cmd.Parameters.AddWithValue("@TPS", TPS.Text);
-                cmd.Parameters.AddWithValue("@backendCall", backendCall.Text);
-                cmd.Parameters.AddWithValue("@callType", callType.Text);
-
+                cmd.Parameters.AddWithValue("@Comments", Comments.Text);
+                
                 cmd.Connection = con;
                 con.Open();
                 cmd.ExecuteNonQuery();
@@ -262,9 +260,20 @@ public partial class Dashboard : System.Web.UI.Page
 
     protected void GridView1_RowDataBound(object sender, GridViewRowEventArgs e)
     {
+        int iGridViewCount = 0;
+        if ((GridView1.DataSource as DataTable) == null)
+        {
+            //lblError.Text = "Total Rows: 0";
+        }
+        else
+        {
+            iGridViewCount = (GridView1.DataSource as DataTable).Rows.Count;
+            //lblError.Text = "Total Rows: " + iGridViewCount;
+        }
+
         if (e.Row.RowType == DataControlRowType.DataRow && e.Row.RowState == DataControlRowState.Edit)
         {
-            for (int ictr = 0; ictr < 8; ictr++)
+            for (int ictr = 0; ictr < iGridViewCount; ictr++)
             {
                 TextBox comments = (TextBox)e.Row.Cells[ictr].Controls[0];
                 comments.Height = 20;
@@ -281,16 +290,7 @@ public partial class Dashboard : System.Web.UI.Page
 
         //added for Total Number record display
 
-        int iGridViewCount = 0;
-        if ((GridView1.DataSource as DataTable) == null)
-        {
-            //lblError.Text = "Total Rows: 0";
-        }
-        else
-        {
-            iGridViewCount = (GridView1.DataSource as DataTable).Rows.Count;
-            //lblError.Text = "Total Rows: " + iGridViewCount;
-        }
+        
 
         //Change header text for Edit and Delete Columns
 
@@ -341,9 +341,9 @@ public partial class Dashboard : System.Web.UI.Page
                         {
                             textSearch = txtTransactionName.Text.Remove(txtTransactionName.Text.Length - 1);
                         }
-                        strSearch = strSearch + " AND (([transactionNames] like '%' + @transactionNames) )";
-                        //OR (SOUNDEX([transactionNames]) like  SOUNDEX(@transactionNames))
-                        cmd.Parameters.AddWithValue("transactionNames", textSearch);
+                        strSearch = strSearch + " AND (([transactionName] like '%' + @transactionName) )";
+                        //OR (SOUNDEX([transactionName]) like  SOUNDEX(@transactionName))
+                        cmd.Parameters.AddWithValue("transactionName", textSearch);
                     }
 
                 }

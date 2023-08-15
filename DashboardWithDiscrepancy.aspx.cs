@@ -13,10 +13,11 @@ using System.Text;
 using Org.BouncyCastle.Asn1.Crmf;
 using MySqlX.XDevAPI.Relational;
 
-public partial class Dashboard : System.Web.UI.Page
+public partial class DashboardWithDiscrepancy : System.Web.UI.Page
 {
     int resultSizeLimit = 100;
     static bool enable = false;
+    int iGridViewCount = 0;
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -31,19 +32,19 @@ public partial class Dashboard : System.Web.UI.Page
             GridView1.PageSize = size;
             pageSize = size;
 
-            BindGrid(GridView1, ddlApplicationName, ddlReleaseID, txtTransactionName);
+            ShowData();
             //added on 07/25
             // ddlGridviewPaging.Items.Insert(0, ("Select"));
             ddlGridviewPaging.SelectedIndex = 0;
             if (Session["CurrentUserRole"] != null)
             {
-                int _editColumnIndex = GridView1.Columns.Count - 2;
-                int _delColumnIndex = GridView1.Columns.Count - 1;
+                //int _editColumnIndex = GridView1.Columns.Count - 2;
+                //int _delColumnIndex = GridView1.Columns.Count - 1;
                 if (Session["CurrentUserRole"].ToString() == "User")
                 {
                     
-                    GridView1.Columns[_editColumnIndex].Visible = false;
-                    GridView1.Columns[_delColumnIndex].Visible = false;
+                   // GridView1.Columns[_editColumnIndex].Visible = false;
+                   // GridView1.Columns[_delColumnIndex].Visible = false;
                 }
                
             }
@@ -86,14 +87,91 @@ public partial class Dashboard : System.Web.UI.Page
         return trxNames;
     }
 
-    //added on 07/25
+
+
+    string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+    //Method for DataBinding  
+    protected void ShowData()
+    {
+        DataTable dt = new DataTable();
+        SqlConnection con = new SqlConnection(cs);
+        // SqlDataAdapter adapt = new SqlDataAdapter("select ApplicationName, releaseID, transactionName, SLA, IsNull(TotalSyncSLA,0), IsNull(MaxAsyncSLA,0), backendCall, CASE WHEN IsNull(TotalSyncSLA,0) + IsNull(MaxAsyncSLA,0) = 0 then 'NA' ELSE CASE WHEN SLA > TotalSyncSLA + MaxAsyncSLA then 'Higher' else 'Lower' END END as 'Compare' FROM (SELECT ApplicationName, transactionName, releaseID, SLA, backendCall, SUM( CASE WHEN CallType = 'Sync' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY transactionName) AS TotalSyncSLA, MAX( CASE WHEN CallType = 'Async' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY transactionName) AS MaxAsyncSLA FROM ( SELECT ApplicationName, transactionName, backendCall, CallType, SLA, releaseID, CASE WHEN CallType = 'Async' THEN ( SELECT MAX(SLA) FROM NFRDetails WHERE transactionName = t.backendCall AND t.CallType = 'Async' and releaseID= '" + ddlReleaseID.SelectedValue + "') WHEN CallType = 'Sync' THEN ( SELECT SUM(SLA) FROM NFRDetails WHERE transactionName = t.backendCall AND t.CallType = 'Sync' and releaseID= '" + ddlReleaseID.SelectedValue + "') ELSE 0 END AS SLAComparison FROM NFRDetails t where ApplicationName = '" + ddlApplicationName.SelectedValue + "' and releaseID= '" + ddlReleaseID.SelectedValue + "' ) as x ) as p;", con);
+        SqlDataAdapter adapt = new SqlDataAdapter("with NFRDetailDepend as (select t.applicationName, t.transactionName, t.releaseID, t.SLA, d.backendCall, d.callType from NFRDetails t, NFROperationDependency d where t.transactionName = d.transactionName) select ApplicationName, releaseID, transactionName, SLA, IsNull(TotalSyncSLA,0) + IsNull(MaxAsyncSLA,0) as 'TotalBackendCallDuration', backendCall, CASE WHEN IsNull(TotalSyncSLA,0) + IsNull(MaxAsyncSLA,0) = 0 then 'NA' ELSE CASE WHEN SLA > TotalSyncSLA + MaxAsyncSLA then 'Higher' else 'Lower' END END as 'Compare' FROM (SELECT ApplicationName, transactionName, releaseID, SLA, backendCall, SUM( CASE WHEN CallType = 'Sync' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY transactionName) AS TotalSyncSLA, MAX( CASE WHEN CallType = 'Async' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY transactionName) AS MaxAsyncSLA FROM ( SELECT ApplicationName, transactionName, backendCall, CallType, SLA, releaseID, CASE WHEN CallType = 'Async' THEN ( SELECT MAX(SLA) FROM NFRDetailDepend WHERE transactionName = t.backendCall AND t.CallType = 'Async') WHEN CallType = 'Sync' THEN ( SELECT SUM(SLA) FROM NFRDetailDepend WHERE transactionName = t.backendCall AND t.CallType = 'Sync' ) ELSE 0 END AS SLAComparison FROM NFRDetailDepend t where ApplicationName = '" + ddlApplicationName.SelectedValue + "' and releaseID= '" + ddlReleaseID.SelectedValue + "' ) as x ) as p;", con); con.Open();
+        adapt.Fill(dt);
+        con.Close();
+        if (dt.Rows.Count > 0)
+        {
+
+            DataTable combinedTable = new DataTable();
+            combinedTable.Columns.Add("ApplicationName", typeof(string));
+            combinedTable.Columns.Add("releaseID", typeof(string));
+            combinedTable.Columns.Add("transactionName", typeof(string));
+            combinedTable.Columns.Add("SLA", typeof(Double));
+            combinedTable.Columns.Add("backendCall", typeof(string));
+            combinedTable.Columns.Add("Compare", typeof(string));
+
+
+
+
+            // Assuming you have an existing DataTable called "originalDataTable"
+
+            // Create a grouping to group rows based on the combination of columns
+            var groups = dt.AsEnumerable()
+                .GroupBy(row => new
+                {
+                    ApplicationName = row.Field<string>("ApplicationName"),
+                    ReleaseID = row.Field<string>("ReleaseID"),
+                    transactionName = row.Field<string>("transactionName"),
+                    SLA = row.Field<Double>("SLA"),
+                    Compare = row.Field<string>("Compare"),
+                    TotalBackendCallDuration = row.Field<Double>("TotalBackendCallDuration")
+                });
+
+            // Iterate through each group and concatenate the BackendCall values
+            foreach (var group in groups)
+            {
+                var backendCalls = group.Select(row => row.Field<string>("BackendCall"))
+                                        .Where(call => !string.IsNullOrEmpty(call));
+
+
+
+                // Combine the multiple backend call values into a string
+                string concatenatedBackendCalls = "<b>Backend Duration (sec)</b>: " + group.Key.TotalBackendCallDuration + "<br><b>Backend Calls:</b> <br>";
+                concatenatedBackendCalls += string.Join(",<br>", backendCalls);
+
+                // Add a new row to the newDataTable with the combined values
+                combinedTable.Rows.Add(
+                    group.Key.ApplicationName,
+                    group.Key.ReleaseID,
+                    group.Key.transactionName,
+                    group.Key.SLA,
+                    concatenatedBackendCalls,
+                    group.Key.Compare
+                );
+            }
+
+            totalRowCount = combinedTable.Rows.Count;
+
+            GridView1.DataSource = combinedTable;
+            GridView1.DataBind();
+        }
+        else
+        {
+                resetGridView(GridView1);
+                //this.Label1.Text = "No Data Found";
+                //return;
+         
+        }
+    }
+
+
     protected void DropDownList1_SelectedIndexChanged(object sender, EventArgs e)
     {
 
         int size = int.Parse(ddlGridviewPaging.SelectedItem.Value.ToString());
         GridView1.PageSize = size;
         pageSize = size;
-        BindGrid(GridView1, ddlApplicationName, ddlReleaseID, txtTransactionName);
+        ShowData();
 
     }
 
@@ -138,7 +216,7 @@ public partial class Dashboard : System.Web.UI.Page
             }
         }
 
-        BindGrid(GridView1, ddlApplicationName, ddlReleaseID, txtTransactionName);
+        ShowData();
     }
     protected void GridView1_RowDeleting(object sender, GridViewDeleteEventArgs e)
     {
@@ -166,7 +244,7 @@ public partial class Dashboard : System.Web.UI.Page
     {
 
         GridView1.EditIndex = e.NewEditIndex;
-        BindGrid(GridView1, ddlApplicationName, ddlReleaseID, txtTransactionName);
+        ShowData();
 
     }
 
@@ -180,14 +258,13 @@ public partial class Dashboard : System.Web.UI.Page
         TextBox transactionName = (TextBox)row.Cells[3].Controls[0];
         TextBox SLA = (TextBox)row.Cells[4].Controls[0];
         TextBox TPS = (TextBox)row.Cells[5].Controls[0];
-        TextBox backendCall = (TextBox)row.Cells[6].Controls[0];
-        TextBox callType = (TextBox)row.Cells[7].Controls[0];
+        TextBox Comments = (TextBox)row.Cells[6].Controls[0];
         string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         SqlConnection conn = new SqlConnection(constr);
 
         using (SqlConnection con = new SqlConnection(constr))
         {
-            using (SqlCommand cmd = new SqlCommand("UPDATE NFRDetails SET applicationName = @applicationName, releaseID = @releaseID , businessScenario = @businessScenario , transactionName = @transactionName  , SLA = @SLA  , TPS = @TPS  , backendCall = @backendCall  , callType = @callType  WHERE Id = @Id"))
+            using (SqlCommand cmd = new SqlCommand("UPDATE NFRDetails SET applicationName = @applicationName, releaseID = @releaseID , businessScenario = @businessScenario , transactionName = @transactionName  , SLA = @SLA  , TPS = @TPS  , Comments = @Comments  WHERE Id = @Id"))
             {
                 cmd.Parameters.AddWithValue("@Id", Id);
 
@@ -197,9 +274,8 @@ public partial class Dashboard : System.Web.UI.Page
                 cmd.Parameters.AddWithValue("@transactionName", transactionName.Text);
                 cmd.Parameters.AddWithValue("@SLA", SLA.Text);
                 cmd.Parameters.AddWithValue("@TPS", TPS.Text);
-                cmd.Parameters.AddWithValue("@backendCall", backendCall.Text);
-                cmd.Parameters.AddWithValue("@callType", callType.Text);
-
+                cmd.Parameters.AddWithValue("@Comments", Comments.Text);
+                
                 cmd.Connection = con;
                 con.Open();
                 cmd.ExecuteNonQuery();
@@ -208,14 +284,13 @@ public partial class Dashboard : System.Web.UI.Page
         }
 
         GridView1.EditIndex = -1;
-        BindGrid(GridView1, ddlApplicationName, ddlReleaseID, txtTransactionName);
-
+        ShowData();
     }
 
     protected void GridView1_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
     {
         GridView1.EditIndex = -1;
-        BindGrid(GridView1, ddlApplicationName, ddlReleaseID, txtTransactionName);
+        ShowData();
     }
     protected void ddlApplicationName_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -262,26 +337,6 @@ public partial class Dashboard : System.Web.UI.Page
 
     protected void GridView1_RowDataBound(object sender, GridViewRowEventArgs e)
     {
-        if (e.Row.RowType == DataControlRowType.DataRow && e.Row.RowState == DataControlRowState.Edit)
-        {
-            for (int ictr = 0; ictr < 8; ictr++)
-            {
-                TextBox comments = (TextBox)e.Row.Cells[ictr].Controls[0];
-                comments.Height = 20;
-                comments.Width = 100;
-            }
-
-        }
-
-        //Added for Delete Confirmation record
-        //if (e.Row.RowType == DataControlRowType.DataRow && e.Row.RowIndex != GridView1.EditIndex)
-        //{
-        //    (e.Row.Cells[9].Controls[0] as LinkButton).Attributes["onclick"] = "return confirm('Do you want to delete this row?');";
-        //}
-
-        //added for Total Number record display
-
-        int iGridViewCount = 0;
         if ((GridView1.DataSource as DataTable) == null)
         {
             //lblError.Text = "Total Rows: 0";
@@ -289,92 +344,46 @@ public partial class Dashboard : System.Web.UI.Page
         else
         {
             iGridViewCount = (GridView1.DataSource as DataTable).Rows.Count;
-            //lblError.Text = "Total Rows: " + iGridViewCount;
+            lblError.Text = "Total Rows: " + iGridViewCount;
         }
 
-        //Change header text for Edit and Delete Columns
-
-        //if (e.Row.RowType == DataControlRowType.Header && iGridViewCount > 0 && ddlApplicationName.SelectedIndex > 0)
+        //if (e.Row.RowType == DataControlRowType.DataRow && e.Row.RowState == DataControlRowState.Edit)
         //{
-        //    int rowCount = GridView1.Columns.Count;
+        //    for (int ictr = 0; ictr < iGridViewCount; ictr++)
+        //    {
+        //        TextBox comments = (TextBox)e.Row.Cells[ictr].Controls[0];
+        //        comments.Height = 20;
+        //        comments.Width = 100;
+        //    }
 
-        //    e.Row.Cells[rowCount - 2].Text = "Edit Record";
-        //    e.Row.Cells[rowCount - 1].Text = "Delete Record";
         //}
 
-    }
-
-    void BindGrid(GridView gridView, DropDownList ddlApplicationName, DropDownList ddlReleaseID,
-            TextBox txtTransactionName)
-    {
-
-        string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-        using (SqlConnection con = new SqlConnection(constr))
+        if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            String strSearch;
-            using (SqlCommand cmd = new SqlCommand())
+            // Get the value of the "Status" column for the current row
+            string status = DataBinder.Eval(e.Row.DataItem, "Compare").ToString();
+
+            // Find the Image control in the "Icon" column
+            Image imgStatus = (Image)e.Row.FindControl("imgStatus");
+
+            // Set the image URL based on the "Status" column value
+            if (status == "Higher")
             {
-                if (ddlApplicationName.SelectedIndex > 0)
-                {
-                    strSearch = "SELECT TOP 100 * FROM [NFRDetails]";
-                }
-                else
-                {
-                    strSearch = "SELECT * FROM [NFRDetails] where 1=2";
-                }
-                if (ddlApplicationName.SelectedIndex > 0)
-                {
-                    strSearch = strSearch + " WHERE [applicationName]=@applicationName";
-                    cmd.Parameters.AddWithValue("applicationName", ddlApplicationName.Text);
-
-                    if (ddlReleaseID.SelectedIndex > 0)
-                    {
-                        strSearch = strSearch + " AND [releaseID]=@releaseID";
-                        cmd.Parameters.AddWithValue("releaseID", ddlReleaseID.Text);
-                    }
-
-                    if (txtTransactionName.Text.Length > 0)
-                    {
-                        String textSearch;
-                        textSearch = txtTransactionName.Text;
-                        if (txtTransactionName.Text.EndsWith("*"))
-                        {
-                            textSearch = txtTransactionName.Text.Remove(txtTransactionName.Text.Length - 1);
-                        }
-                        strSearch = strSearch + " AND (([transactionName] like '%' + @transactionName) )";
-                        //OR (SOUNDEX([transactionName]) like  SOUNDEX(@transactionName))
-                        cmd.Parameters.AddWithValue("transactionName", textSearch);
-                    }
-
-                }
-
-                cmd.CommandText = strSearch;
-                //create parameters with specified name and values
-                cmd.Connection = con;
-
-                DataTable dt = new DataTable();
-                using (SqlDataAdapter sda = new SqlDataAdapter(cmd))
-                {
-                    sda.Fill(dt);
-                }
-                //retrive data
-                totalRowCount = dt.Rows.Count;
-                if (dt.Rows.Count == 0)
-                {
-                    resetGridView(gridView);
-                    //this.Label1.Text = "No Data Found";
-                    //return;
-                }
-                else
-                {
-                    HttpContext.Current.Session["gridviewsouce"] = dt;
-                    gridView.DataSource = dt;
-                    gridView.DataBind();
-                }
+                imgStatus.ImageUrl = "Resources/images/uparrow.png";
+            }
+            else if (status == "Lower")
+            {
+                imgStatus.ImageUrl = "Resources/images/downarrow.png";
+            }
+            else if (status == "NA")
+            {
+                imgStatus.ImageUrl = "Resources/images/nochange.png";
             }
         }
 
     }
+
+   
 
     protected void btnSubmit_Click(object sender, EventArgs e)
     {
@@ -402,14 +411,14 @@ public partial class Dashboard : System.Web.UI.Page
             }
             else
             {
-                BindGrid(GridView1, ddlApplicationName, ddlReleaseID, txtTransactionName);
+                ShowData();
 
                 //returnCountFromTables(ddlApplicationName)
                 int cntRows = 0;
                 try
                 {
                     DataTable dt = Session["gridviewsouce"] as DataTable;
-                    cntRows = dt.Rows.Count;
+                    cntRows = iGridViewCount; //dt.Rows.Count;
                 }
                 catch (Exception ex)
                 {
@@ -430,7 +439,7 @@ public partial class Dashboard : System.Web.UI.Page
         if (txtTransactionName.Text.Length > 0)
             cookieToInsert += "&TransactionName=" + txtTransactionName.Text.ToString();
 
-        addCookiesInStack("mruDashboard", cookieToInsert);
+        addCookiesInStack("mruDashboardDiscrepancy", cookieToInsert);
 
 
     }
@@ -492,7 +501,7 @@ public partial class Dashboard : System.Web.UI.Page
 
     void retrieveStack()
     {
-        HttpCookie cookieObj = Request.Cookies["mruDashboard"];
+        HttpCookie cookieObj = Request.Cookies["mruDashboardDiscrepancy"];
         //--- Check for null 
         if (cookieObj != null)
         {
@@ -524,38 +533,47 @@ public partial class Dashboard : System.Web.UI.Page
 
     protected void getMethod(object sender, EventArgs e)
     {
-        //  Response.Write("<script>alert('done'); </script>");
-        ddlApplicationName.ClearSelection();
-        ddlReleaseID.ClearSelection();
-        txtTransactionName.Text = string.Empty;
-
-        LinkButton h = sender as LinkButton;
-        //lblError.Text = h.Text;
-        String[] finalResult = null;
-        finalResult = h.Text.Split('&');
-
-        for (int j = 0; j < finalResult.Length; j++)
+        try
         {
-            //lblError.Text = finalResult[j];
-            //lblError.Text = finalResult[j].Split('=')[1];
-            switch (finalResult[j].Split('=')[0])
-            {
 
-                case "Selected application":
-                    ddlApplicationName.ClearSelection();
-                    ddlApplicationName.Items.FindByText(finalResult[j].Split('=')[1]).Selected = true;
-                    ddlApplicationName_SelectedIndexChanged(this, EventArgs.Empty);
-                    break;
-                case "ReleaseID":
-                    ddlReleaseID.ClearSelection();
-                    ddlReleaseID.Items.FindByText(finalResult[j].Split('=')[1]).Selected = true;
-                    ddlReleaseID_SelectedIndexChanged(this, EventArgs.Empty);
-                    break;
-                case "TransactionName":
-                    txtTransactionName.Text = string.Empty;
-                    txtTransactionName.Text = finalResult[j].Split('=')[1];
-                    break;
+
+            //  Response.Write("<script>alert('done'); </script>");
+            ddlApplicationName.ClearSelection();
+            ddlReleaseID.ClearSelection();
+            txtTransactionName.Text = string.Empty;
+
+            LinkButton h = sender as LinkButton;
+            //lblError.Text = h.Text;
+            String[] finalResult = null;
+            finalResult = h.Text.Split('&');
+
+            for (int j = 0; j < finalResult.Length; j++)
+            {
+                //lblError.Text = finalResult[j];
+                //lblError.Text = finalResult[j].Split('=')[1];
+                switch (finalResult[j].Split('=')[0])
+                {
+
+                    case "Selected application":
+                        ddlApplicationName.ClearSelection();
+                        ddlApplicationName.Items.FindByText(finalResult[j].Split('=')[1]).Selected = true;
+                        ddlApplicationName_SelectedIndexChanged(this, EventArgs.Empty);
+                        break;
+                    case "ReleaseID":
+                        ddlReleaseID.ClearSelection();
+                        ddlReleaseID.Items.FindByText(finalResult[j].Split('=')[1]).Selected = true;
+                        ddlReleaseID_SelectedIndexChanged(this, EventArgs.Empty);
+                        break;
+                    case "TransactionName":
+                        txtTransactionName.Text = string.Empty;
+                        txtTransactionName.Text = finalResult[j].Split('=')[1];
+                        break;
+                }
             }
+        }
+        catch (Exception ex)
+        {
+
         }
     }
 

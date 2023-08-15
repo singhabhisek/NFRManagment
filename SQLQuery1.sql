@@ -1,4 +1,27 @@
-select ApplicationName, transactionNames, releaseID, SLA, TotalSyncSLA, MaxAsyncSLA, backendCall,
-CASE WHEN TotalSyncSLA + MaxAsyncSLA = 0 then 'NA' ELSE CASE WHEN SLA > TotalSyncSLA + MaxAsyncSLA then 'Higher' else 'Lower' END END as 'Compare' FROM (
+USE [C:\USERS\ABHISEK\DOCUMENTS\VISUAL STUDIO 2022\REPOS\NFRPRO\NFRPRO\APP_DATA\DATABASE.MDF]
+GO
 
-SELECT ApplicationName, transactionNames, releaseID, SLA, backendCall, SUM( CASE WHEN CallType = 'Sync' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY transactionNames) AS TotalSyncSLA, MAX( CASE WHEN CallType = 'Async' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY transactionNames) AS MaxAsyncSLA FROM ( SELECT ApplicationName, transactionNames, backendCall, CallType, SLA, releaseID, CASE WHEN CallType = 'Async' THEN ( SELECT MAX(SLA) FROM NFRDetails WHERE transactionNames = t.backendCall AND t.CallType = 'Async' and releaseID='2022.4') WHEN CallType = 'Sync' THEN ( SELECT SUM(SLA) FROM NFRDetails WHERE transactionNames = t.backendCall AND t.CallType = 'Sync' and releaseID='2022.4') ELSE 0 END AS SLAComparison FROM NFRDetails t where ApplicationName = 'OnlineBanking' and releaseID='2022.4' ) as x ) as p;
+/****** Object:  Table [dbo].[NFROperationDependency]    Script Date: 8/13/2023 8:22:42 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[NFROperationDependency](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[applicationName] [varchar](255) NOT NULL,
+	[releaseID] [varchar](255) NOT NULL,
+	[businessScenario] [varchar](255) NOT NULL,
+	[transactionNames] [varchar](255) NOT NULL,
+	[backendCall] [varchar](255) NULL,
+	[callType] [varchar](255) NULL,
+	[comments] [varchar](255) NULL,
+	[createdBy] [varchar](255) NOT NULL,
+	[created_date] [datetime] NOT NULL,
+	[modifiedBy] [varchar](255) NULL,
+	[modifed_date] [datetime] NULL
+) ON [PRIMARY]
+GO
+
+

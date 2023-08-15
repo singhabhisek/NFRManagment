@@ -290,16 +290,16 @@ public partial class _Default : System.Web.UI.Page
                     {
                         if (ddlReleaseID2.SelectedIndex > 0)
                         {
-                            strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRDetails] a";
+                            strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionName] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID2.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID2.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRDetails] a";
                         }
                         else
                         {
-                            strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRDetails] a ";
+                            strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionName] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_SLA', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID1.SelectedValue.ToString() + "' THEN TPS END)),'NA') '" + ddlReleaseID1.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRDetails] a ";
                         }
                     }
                     else
                     {
-                        strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA',     ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "'  THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRDetails] a ";
+                        strSearch = "SELECT a.[applicationName] as 'Application Name',a.[transactionName] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "' THEN SLA END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_SLA',     ISNULL(str(MAX(CASE WHEN releaseID='" + ddlReleaseID.SelectedValue.ToString() + "'  THEN TPS END)),'NA') '" + ddlReleaseID.SelectedValue.ToString() + "_TPS' FROM [dbo].[NFRDetails] a ";
 
                     }
                 }
@@ -316,8 +316,8 @@ public partial class _Default : System.Web.UI.Page
                         {
                             textSearch = txtTransactionName.Text.Remove(txtTransactionName.Text.Length - 1);
                         }
-                        strSearch = strSearch + " AND [transactionNames] like '%' + @transactionNames + '%'";
-                        cmd.Parameters.AddWithValue("transactionNames", textSearch);
+                        strSearch = strSearch + " AND [transactionName] like '%' + @transactionName + '%'";
+                        cmd.Parameters.AddWithValue("transactionName", textSearch);
                     }
 
                 }
@@ -331,8 +331,8 @@ public partial class _Default : System.Web.UI.Page
                         {
                             textSearch = txtTransactionName.Text.Remove(txtTransactionName.Text.Length - 1);
                         }
-                        strSearch = strSearch + " WHERE [transactionNames] like '%' + @transactionNames + '%'";
-                        cmd.Parameters.AddWithValue("transactionNames", textSearch);
+                        strSearch = strSearch + " WHERE [transactionName] like '%' + @transactionName + '%'";
+                        cmd.Parameters.AddWithValue("transactionName", textSearch);
                     }
                 }
 
@@ -342,10 +342,10 @@ public partial class _Default : System.Web.UI.Page
                 /*select distinct n.[Application Name], n.[Transaction Name],n.[2022.4_SLA]
                 ,n.[2022.4_TPS],n.[2023.6_SLA],n.[2023.6_TPS],n.[2023.7_SLA],n.[2023.7_TPS]
                 from [NFRDetails] m, (
-                SELECT a.[applicationName] as 'Application Name',a.[transactionNames] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='2022.4' THEN SLA END)),'NA') '2022.4_SLA', ISNULL(str(MAX(CASE WHEN releaseID='2023.6' THEN SLA END)),'NA') '2023.6_SLA',ISNULL(str(MAX(CASE WHEN releaseID='2023.7' THEN SLA END)),'NA') '2023.7_SLA', ISNULL(str(MAX(CASE WHEN releaseID='2022.4' THEN TPS END)),'NA') '2022.4_TPS', ISNULL(str(MAX(CASE WHEN releaseID='2023.6' THEN TPS END)),'NA') '2023.6_TPS', ISNULL(str(MAX(CASE WHEN releaseID='2023.7' THEN TPS END)),'NA') '2023.7_TPS'  FROM [dbo].[NFRDetails] a WHERE applicationName = 'Mobile' GROUP BY a.[applicationName],a.[transactionNames]
+                SELECT a.[applicationName] as 'Application Name',a.[transactionName] as 'Transaction Name', ISNULL(str(MAX(CASE WHEN releaseID='2022.4' THEN SLA END)),'NA') '2022.4_SLA', ISNULL(str(MAX(CASE WHEN releaseID='2023.6' THEN SLA END)),'NA') '2023.6_SLA',ISNULL(str(MAX(CASE WHEN releaseID='2023.7' THEN SLA END)),'NA') '2023.7_SLA', ISNULL(str(MAX(CASE WHEN releaseID='2022.4' THEN TPS END)),'NA') '2022.4_TPS', ISNULL(str(MAX(CASE WHEN releaseID='2023.6' THEN TPS END)),'NA') '2023.6_TPS', ISNULL(str(MAX(CASE WHEN releaseID='2023.7' THEN TPS END)),'NA') '2023.7_TPS'  FROM [dbo].[NFRDetails] a WHERE applicationName = 'Mobile' GROUP BY a.[applicationName],a.[transactionName]
                 ) n
                 where n.[Application Name] = m.applicationName
-                and n.[Transaction Name] = m.transactionNames
+                and n.[Transaction Name] = m.transactionName
                 and COALESCE(n.[2022.4_SLA], n.[2023.6_SLA] ,n.[2023.7_SLA]) != 'NA'
                 ;
                 */
@@ -365,8 +365,8 @@ public partial class _Default : System.Web.UI.Page
                 }
                 else
                 {
-                    //"where a.[transactionNames] = 'OLB_Login' ";
-                    strSearch = strSearch + "GROUP BY a.[applicationName],a.[transactionNames];";
+                    //"where a.[transactionName] = 'OLB_Login' ";
+                    strSearch = strSearch + "GROUP BY a.[applicationName],a.[transactionName];";
                     cmd.CommandText = strSearch;
                     //create parameters with specified name and values
                     cmd.Connection = con;
@@ -477,7 +477,7 @@ public partial class _Default : System.Web.UI.Page
     {
         List<string> trxNames = new List<string>();
         DataTable dt = HttpContext.Current.Session["TrxTableListCompare"] as DataTable;
-        trxNames = dt.AsEnumerable().Where(x => x.Field<String>("transactionNames").ToLower().Contains(prefixText.ToLower())).Select(x => x[0].ToString()).ToList();
+        trxNames = dt.AsEnumerable().Where(x => x.Field<String>("transactionName").ToLower().Contains(prefixText.ToLower())).Select(x => x[0].ToString()).ToList();
         if (trxNames.Count <= 0)
         {
             for (int i = 0; i < dt.Rows.Count; i++)

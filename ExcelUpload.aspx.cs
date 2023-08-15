@@ -63,7 +63,7 @@ public partial class ExcelUpload : System.Web.UI.Page
                     dtExcelData.Columns.AddRange(new DataColumn[8] { new DataColumn("applicationName", typeof(string)),
                 new DataColumn("releaseID", typeof(string)),
                 new DataColumn("businessScenario", typeof(string)),
-                new DataColumn("transactionNames", typeof(string)),
+                new DataColumn("transactionName", typeof(string)),
                 new DataColumn("SLA", typeof(decimal)),
                 new DataColumn("TPS", typeof(decimal)),
                 new DataColumn("backendCall", typeof(string)),
@@ -86,7 +86,7 @@ public partial class ExcelUpload : System.Web.UI.Page
                     DataTable dataTable = new DataTable();
                     dataTable.Load(reader1);
 
-                    string[] stringArray = { "applicationName", "releaseID", "transactionNames", "SLA", "TPS", "businessScenario", "backendCall", "callType" };
+                    string[] stringArray = { "applicationName", "releaseID", "transactionName", "SLA", "TPS", "businessScenario", "backendCall", "callType" };
                     foreach (DataColumn column in dataTable.Columns)
                     {
                         string columnName = column.ColumnName;
@@ -121,7 +121,7 @@ public partial class ExcelUpload : System.Web.UI.Page
                             recordCount++;
                             using (SqlConnection connection1 = new SqlConnection(connSqlString))
                             {
-                                //String queryInsert = "INSERT INTO [dbo].[NFRDetails] ([applicationName],[releaseID],[businessScenario],[transactionNames],[SLA],[TPS],[backendCall],[callType]) VALUES \r\n(@applicationName, @releaseID, @businessScenario, @transactionNames, @SLA, @TPS, @backendCall, @callType) ";
+                                //String queryInsert = "INSERT INTO [dbo].[NFRDetails] ([applicationName],[releaseID],[businessScenario],[transactionName],[SLA],[TPS],[backendCall],[callType]) VALUES \r\n(@applicationName, @releaseID, @businessScenario, @transactionName, @SLA, @TPS, @backendCall, @callType) ";
                                 using (SqlCommand cmd = new SqlCommand("NFRDetails_InsertUpdate", connection1))
                                 {
                                     {
@@ -140,7 +140,7 @@ public partial class ExcelUpload : System.Web.UI.Page
                                                 cmd.Parameters.Add("@applicationName", SqlDbType.VarChar, 255).Value = reader[0].ToString();
                                                 cmd.Parameters.Add("@releaseID", SqlDbType.VarChar, 255).Value = reader[1].ToString();
                                                 cmd.Parameters.Add("@businessScenario", SqlDbType.VarChar, 255).Value = reader[2].ToString();
-                                                cmd.Parameters.Add("@transactionNames", SqlDbType.VarChar, 255).Value = reader[3].ToString();
+                                                cmd.Parameters.Add("@transactionName", SqlDbType.VarChar, 255).Value = reader[3].ToString();
                                                 cmd.Parameters.Add("@SLA", SqlDbType.Float, 10).Value = reader[4].ToString();
                                                 cmd.Parameters.Add("@TPS", SqlDbType.Float, 100).Value = reader[5].ToString();
                                                 cmd.Parameters.Add("@backendCall", SqlDbType.VarChar, 255).Value = reader[6].ToString();

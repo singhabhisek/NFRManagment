@@ -153,7 +153,7 @@ public partial class _Default : System.Web.UI.Page
         TextBox applicationName = (TextBox)row.Cells[0].Controls[0];
         TextBox releaseID = (TextBox)row.Cells[1].Controls[0];
         TextBox businessScenario = (TextBox)row.Cells[2].Controls[0];
-        TextBox transactionNames = (TextBox)row.Cells[3].Controls[0];
+        TextBox transactionName = (TextBox)row.Cells[3].Controls[0];
         TextBox SLA = (TextBox)row.Cells[4].Controls[0];
         TextBox TPS = (TextBox)row.Cells[5].Controls[0];
         TextBox backendCall = (TextBox)row.Cells[6].Controls[0];
@@ -165,14 +165,14 @@ public partial class _Default : System.Web.UI.Page
 
         using (SqlConnection con = new SqlConnection(constr))
         {
-            using (SqlCommand cmd = new SqlCommand("UPDATE NFRDetails SET applicationName = @applicationName, releaseID = @releaseID , businessScenario = @businessScenario , transactionNames = @transactionNames  , SLA = @SLA  , TPS = @TPS  , backendCall = @backendCall  , callType = @callType  WHERE Id = @Id"))
+            using (SqlCommand cmd = new SqlCommand("UPDATE NFRDetails SET applicationName = @applicationName, releaseID = @releaseID , businessScenario = @businessScenario , transactionName = @transactionName  , SLA = @SLA  , TPS = @TPS  , backendCall = @backendCall  , callType = @callType  WHERE Id = @Id"))
             {
                 cmd.Parameters.AddWithValue("@Id", Id);
 
                 cmd.Parameters.AddWithValue("@applicationName", applicationName.Text);
                 cmd.Parameters.AddWithValue("@releaseID", releaseID.Text);
                 cmd.Parameters.AddWithValue("@businessScenario", businessScenario.Text);
-                cmd.Parameters.AddWithValue("@transactionNames", transactionNames.Text);
+                cmd.Parameters.AddWithValue("@transactionName", transactionName.Text);
                 cmd.Parameters.AddWithValue("@SLA", SLA.Text);
                 cmd.Parameters.AddWithValue("@TPS", TPS.Text);
                 cmd.Parameters.AddWithValue("@backendCall", backendCall.Text);
@@ -376,8 +376,8 @@ public partial class _Default : System.Web.UI.Page
                         {
                             textSearch = txtTransactionName.Text.Remove(txtTransactionName.Text.Length - 1);
                         }
-                        strSearch = strSearch + " AND [transactionNames] like @transactionNames ";
-                        cmd.Parameters.AddWithValue("transactionNames", textSearch);
+                        strSearch = strSearch + " AND [transactionName] like @transactionName ";
+                        cmd.Parameters.AddWithValue("transactionName", textSearch);
                     }
 
                 }

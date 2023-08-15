@@ -1,1 +1,32 @@
-select ApplicationName, OperationName, SLA, TotalSyncSLA, MaxAsyncSLA, CASE WHEN TotalSyncSLA + MaxAsyncSLA = 0 then 'NA' ELSE CASE WHEN SLA > TotalSyncSLA + MaxAsyncSLA then 'Higher' else 'Lower' END END as 'Compare' FROM ( SELECT ApplicationName, OperationName, SLA, SUM( CASE WHEN CallType = 'Sync' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY OperationName) AS TotalSyncSLA, MAX( CASE WHEN CallType = 'Async' THEN SLAComparison ELSE 0 END ) OVER (PARTITION BY OperationName) AS MaxAsyncSLA FROM ( SELECT ApplicationName, OperationName, MethodCall, CallType, SLA, CASE WHEN CallType = 'Async' THEN ( SELECT MAX(SLA) FROM NFR WHERE OperationName = t.MethodCall AND t.CallType = 'Async' ) WHEN CallType = 'Sync' THEN ( SELECT SUM(SLA) FROM NFR WHERE OperationName = t.MethodCall AND t.CallType = 'Sync' ) ELSE 0 END AS SLAComparison FROM NFR t where ApplicationName = 'AppName1' ) as x ) as p;
+USE [C:\USERS\ABHISEK\DOCUMENTS\VISUAL STUDIO 2022\REPOS\NFRPRO\NFRPRO\APP_DATA\DATABASE.MDF]
+GO
+
+/****** Object:  Table [dbo].[NFRDetails]    Script Date: 8/13/2023 8:22:58 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[NFRDetails](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[applicationName] [varchar](255) NOT NULL,
+	[releaseID] [varchar](255) NOT NULL,
+	[businessScenario] [varchar](255) NOT NULL,
+	[transactionNames] [varchar](255) NOT NULL,
+	[SLA] [float] NULL,
+	[TPS] [float] NULL,
+	[comments] [varchar](255) NULL,
+	[discrepancyIndicator] [varchar](255) NULL,
+	[additionalDetails] [varchar](255) NULL,
+	[createdBy] [varchar](255) NOT NULL,
+	[created_date] [datetime] NOT NULL,
+	[modifiedBy] [varchar](255) NULL,
+	[modifed_date] [datetime] NULL
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[NFRDetails] ADD  DEFAULT (getdate()) FOR [created_date]
+GO
+
+
