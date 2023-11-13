@@ -20,6 +20,7 @@ public partial class Dashboard : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        
 
         if (!this.IsPostBack)
         {
@@ -65,7 +66,7 @@ public partial class Dashboard : System.Web.UI.Page
         DataTable dt = HttpContext.Current.Session["TrxTableListDashboard"] as DataTable;
         try
         {
-            trxNames = dt.AsEnumerable().Where(x => x.Field<String>("transactionName").ToLower().Contains(prefixText.ToLower())).Select(x => x[0].ToString()).ToList();
+            trxNames = dt.AsEnumerable().Where(x => x.Field<String>("transactionNames").ToLower().Contains(prefixText.ToLower())).Select(x => x[0].ToString()).ToList();
             if (trxNames.Count <= 0)
             {
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -170,6 +171,18 @@ public partial class Dashboard : System.Web.UI.Page
 
     }
 
+    // Common method to show a gray alert using jQuery
+    private void ShowGrayAlert(string message)
+    {
+       
+        ScriptManager.RegisterStartupScript(this, GetType(), "showAlert", $"showAlert('{message}')", true);
+
+    }
+
+
+
+
+
     protected void GridView1_RowUpdating(object sender, GridViewUpdateEventArgs e)
     {
 
@@ -177,37 +190,73 @@ public partial class Dashboard : System.Web.UI.Page
         TextBox applicationName = (TextBox)row.Cells[0].Controls[0];
         TextBox releaseID = (TextBox)row.Cells[1].Controls[0];
         TextBox businessScenario = (TextBox)row.Cells[2].Controls[0];
-        TextBox transactionName = (TextBox)row.Cells[3].Controls[0];
+        TextBox transactionNames = (TextBox)row.Cells[3].Controls[0];
         TextBox SLA = (TextBox)row.Cells[4].Controls[0];
         TextBox TPS = (TextBox)row.Cells[5].Controls[0];
-        TextBox Comments = (TextBox)row.Cells[6].Controls[0];
-        string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-        SqlConnection conn = new SqlConnection(constr);
+        TextBox backendCall = (TextBox)row.Cells[6].Controls[0];
+        TextBox callType = (TextBox)row.Cells[7].Controls[0];
 
-        using (SqlConnection con = new SqlConnection(constr))
+        
+        // Validate if the text is a number
+        int result;
+        if (!int.TryParse(SLA.Text, out result))
         {
-            using (SqlCommand cmd = new SqlCommand("UPDATE NFRDetails SET applicationName = @applicationName, releaseID = @releaseID , businessScenario = @businessScenario , transactionName = @transactionName  , SLA = @SLA  , TPS = @TPS  , Comments = @Comments  WHERE Id = @Id"))
-            {
-                cmd.Parameters.AddWithValue("@Id", Id);
+            // Display an error message (you can customize this part based on your needs)
+            //ScriptManager.RegisterStartupScript(this, GetType(), "validation", "alert('Please enter valid numeric SLA.');", true);
+            ShowGrayAlert("This is a sample alert message.");
 
-                cmd.Parameters.AddWithValue("@applicationName", applicationName.Text);
-                cmd.Parameters.AddWithValue("@releaseID", releaseID.Text);
-                cmd.Parameters.AddWithValue("@businessScenario", businessScenario.Text);
-                cmd.Parameters.AddWithValue("@transactionName", transactionName.Text);
-                cmd.Parameters.AddWithValue("@SLA", SLA.Text);
-                cmd.Parameters.AddWithValue("@TPS", TPS.Text);
-                cmd.Parameters.AddWithValue("@Comments", Comments.Text);
-                
-                cmd.Connection = con;
-                con.Open();
-                cmd.ExecuteNonQuery();
-                con.Close();
-            }
+            // Cancel the update operation
+            e.Cancel = true;
         }
 
-        GridView1.EditIndex = -1;
-        BindGrid(GridView1, ddlApplicationName, ddlReleaseID, txtTransactionName);
+        else
+        {
+            // Get the TextBox control from the GridView cell
+            TextBox textBox = (TextBox)GridView1.Rows[e.RowIndex].Cells[0].Controls[0];
 
+            // Validate if the text is a number
+
+            if (!int.TryParse(TPS.Text, out result))
+            {
+                // Display an error message (you can customize this part based on your needs)
+                //ScriptManager.RegisterStartupScript(this, GetType(), "validation", "alert('Please enter valid numeric TPS.');", true);
+                ShowGrayAlert("This is a sample alert message for TPS.");
+
+                // Cancel the update operation
+                e.Cancel = true;
+            }
+            else
+            {
+
+                string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+                SqlConnection conn = new SqlConnection(constr);
+
+                using (SqlConnection con = new SqlConnection(constr))
+                {
+                    using (SqlCommand cmd = new SqlCommand("UPDATE NFRDetails SET applicationName = @applicationName, releaseID = @releaseID , businessScenario = @businessScenario , transactionNames = @transactionNames  , SLA = @SLA  , TPS = @TPS  , backendCall = @backendCall  , callType = @callType  WHERE Id = @Id"))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", Id);
+
+                        cmd.Parameters.AddWithValue("@applicationName", applicationName.Text);
+                        cmd.Parameters.AddWithValue("@releaseID", releaseID.Text);
+                        cmd.Parameters.AddWithValue("@businessScenario", businessScenario.Text);
+                        cmd.Parameters.AddWithValue("@transactionNames", transactionNames.Text);
+                        cmd.Parameters.AddWithValue("@SLA", SLA.Text);
+                        cmd.Parameters.AddWithValue("@TPS", TPS.Text);
+                        cmd.Parameters.AddWithValue("@backendCall", backendCall.Text);
+                        cmd.Parameters.AddWithValue("@callType", callType.Text);
+
+                        cmd.Connection = con;
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+                        con.Close();
+                    }
+                }
+
+                GridView1.EditIndex = -1;
+                BindGrid(GridView1, ddlApplicationName, ddlReleaseID, txtTransactionName);
+            }
+        }
     }
 
     protected void GridView1_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
@@ -260,20 +309,9 @@ public partial class Dashboard : System.Web.UI.Page
 
     protected void GridView1_RowDataBound(object sender, GridViewRowEventArgs e)
     {
-        int iGridViewCount = 0;
-        if ((GridView1.DataSource as DataTable) == null)
-        {
-            //lblError.Text = "Total Rows: 0";
-        }
-        else
-        {
-            iGridViewCount = (GridView1.DataSource as DataTable).Rows.Count;
-            //lblError.Text = "Total Rows: " + iGridViewCount;
-        }
-
         if (e.Row.RowType == DataControlRowType.DataRow && e.Row.RowState == DataControlRowState.Edit)
         {
-            for (int ictr = 0; ictr < iGridViewCount; ictr++)
+            for (int ictr = 0; ictr < 8; ictr++)
             {
                 TextBox comments = (TextBox)e.Row.Cells[ictr].Controls[0];
                 comments.Height = 20;
@@ -290,7 +328,16 @@ public partial class Dashboard : System.Web.UI.Page
 
         //added for Total Number record display
 
-        
+        int iGridViewCount = 0;
+        if ((GridView1.DataSource as DataTable) == null)
+        {
+            //lblError.Text = "Total Rows: 0";
+        }
+        else
+        {
+            iGridViewCount = (GridView1.DataSource as DataTable).Rows.Count;
+            //lblError.Text = "Total Rows: " + iGridViewCount;
+        }
 
         //Change header text for Edit and Delete Columns
 
@@ -341,9 +388,9 @@ public partial class Dashboard : System.Web.UI.Page
                         {
                             textSearch = txtTransactionName.Text.Remove(txtTransactionName.Text.Length - 1);
                         }
-                        strSearch = strSearch + " AND (([transactionName] like '%' + @transactionName) )";
-                        //OR (SOUNDEX([transactionName]) like  SOUNDEX(@transactionName))
-                        cmd.Parameters.AddWithValue("transactionName", textSearch);
+                        strSearch = strSearch + " AND (([transactionNames] like '%' + @transactionNames) )";
+                        //OR (SOUNDEX([transactionNames]) like  SOUNDEX(@transactionNames))
+                        cmd.Parameters.AddWithValue("transactionNames", textSearch);
                     }
 
                 }
