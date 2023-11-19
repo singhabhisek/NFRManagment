@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Dashboard.aspx.cs" Inherits="Dashboard" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="DashboardWithDiscrepancy - Copy.aspx.cs" Inherits="DashboardWithDiscrepancy" %>
 
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="cc1" %>
 
@@ -8,105 +8,91 @@
 
 
     <%-- <link rel="stylesheet" href="Bootstrap.css" />--%>
-    <%--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.css"/>
-    --%>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.css" />
+
     <link rel="stylesheet" href="Resources/css/Ultimate.css" />
     <script src="Resources/js/CommonJS.js" type="text/javascript"></script>
     <script src="Resources/js/jquery.min.js"></script>
     <link href="Resources/css/jquery-ui.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="Resources/js/jquery-ui.min.js"></script>
+
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <style>
+        .chart-container {
+            width: 80%;
+            margin: auto;
+        }
+    </style>
+
+
     <style type="text/css">
         .verticalSpace {
             margin-top: 15px;
         }
-
-        .small-font {
-            font-size: 10px;
-        }
     </style>
+
 
     <style>
-        /* Define CSS for the alert popup */
-        #alertPopup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .modalPopup {
+            background-color: #FFFFFF;
+            border-width: 1px;
+            border-style: solid;
+            margin-left: -100px;
+            padding: 10px;
+            width: auto;
+            height: auto;
+            text-align: left;
+        }
+
+        /*#tooltip {
+            position: absolute;
+            z-index: 3000;
+            border: 1px solid #111;
+            background-color: #FEE18D;
             padding: 5px;
-            background-color: #f2f2f2;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
-            z-index: 1000;
+            opacity: 0.85;
         }
 
-         /* Style for the title bar */
-        #titleBar {
-            background-color: #e84545; /* Darker gray for the title bar */
-            padding: 0px;
-            font-weight:bold;
-            border-radius: 0 0 0 0; /* Rounded corners only at the top */
-            margin-bottom: 5px;
-        }
-
-        /* Style for the OK button */
-        #okButton {
-            /*padding: 10px;*/
-            margin-top: 8px;
-            background-color: #555;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+            #tooltip h3, #tooltip div {
+                margin: 0;
+            }*/
     </style>
 
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI/tTqHdA5lGtF5M4eB9nh/70yCPT2i74fOgq+3A= sha512-nE7VHfKl6iB1xck6jBt0W2F6pj4Ibn3zQrF5eTfE7I5AHE1TBBtCr5S+eOAgQuW1Vp1KwA6+6y0Lp1YtApaed5w==" crossorigin="anonymous"></script>
-    <script type="text/javascript">
-        function ShowGrayAlert(message) {
-            $("<div></div>").html(message).dialog({
-                title: "Alert",
-                resizable: false,
-                class: "small-font",
-                modal: true,
-                buttons: {
-                    Ok: function () {
-                        $(this).dialog("close");
-                    }
-                },
-                close: function (event, ui) {
-                    $(this).remove();
-                }
-            }).css("color", "gray");
-        }
-    </script>
 
-    <script type="text/javascript">
-        //function pageLoad() {
-        //    var modalPopup = $find('mpe');
-        //    modalPopup.add_shown(function () {
-        //        modalPopup._backgroundElement.addEventListener("click", function () {
-        //            modalPopup.hide();
-        //        });
-        //    });
-        //};
-    </script>
-    <style type="text/css">
-      
+    <style>
+        .tooltip12 {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+            .tooltip12 .tooltiptext12 {
+                visibility: visible;
+                width: 200px;
+                background-color: #555;
+                color: #fff;
+                text-align: center;
+                border-radius: 6px;
+                padding: 5px;
+                position: absolute;
+                z-index: 1;
+                bottom: 125%;
+                left: 50%;
+                margin-left: -200px;
+                opacity: 0;
+                transition: opacity 0.2s;
+            }
+
+            .tooltip12:hover .tooltiptext12 {
+                visibility: visible;
+                opacity: 1;
+            }
     </style>
 
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
-
-    <div id="alertPopup">
-        <div id="titleBar">Error !!</div>
-        <asp:Label ID="lblMessage" runat="server" Text=""></asp:Label><br />
-        <button id="okButton" style="height:20px;width:40px;"  onclick="hideAlert()">OK</button>
-    </div>
-
 
     <div id="div1" style="height: calc(100vh-20px); overflow-y: hidden; display: flex;">
 
@@ -142,7 +128,7 @@
                         </div>
                         <br />
 
-                        <table style="margin-top: 10px; width: 90%;">
+                        <table style="margin-top: 10px; width: 100%;">
                             <tr>
                                 <td colspan="3" align="right" style="width: 50%">
                                     <asp:Button ID="btnSubmit" CssClass="btn btn-primary" runat="server" Text="Search Records" OnClick="btnSubmit_Click" /></td>
@@ -177,28 +163,26 @@
                                     </asp:DropDownList>
                                 </td>
                                 <td colspan="1" align="right">
-                                    <asp:ImageButton ID="btnExportExcel0" runat="server" ImageUrl="~/Resources/images/xl_down.png" AlternateText="Export to Excel" Height="30px" Width="40px" OnClick="btnExportExcel_Click" />
+                                    <%--                                    <asp:ImageButton ID="btnExportExcel0" runat="server" ImageUrl="~/Resources/images/xl_down.png" AlternateText="Export to Excel" Height="30px" Width="40px" OnClick="btnExportExcel_Click" />--%>
                                 </td>
                             </tr>
                             <tr>
                                 <td colspan="6">
-                                    <asp:GridView ID="GridView1" Width="1050px" ShowHeaderWhenEmpty="True" EmptyDataText="No records Found" runat="server" AutoGenerateColumns="False" AllowPaging="True"
+                                    <asp:GridView ID="GridView1" ShowHeaderWhenEmpty="True" EmptyDataText="No records Found" runat="server" AutoGenerateColumns="False" AllowPaging="True"
                                         OnPageIndexChanging="OnPageIndexChanging" OnRowCancelingEdit="GridView1_RowCancelingEdit" OnRowDeleting="GridView1_RowDeleting" OnRowEditing="GridView1_RowEditing" OnRowUpdating="GridView1_RowUpdating"
                                         CssClass="table table-striped table-bordered table-hover gvstyling tr th"
-                                        DataKeyNames="ID" enablepagingandcallback="false" PageSize="5" OnRowDataBound="GridView1_RowDataBound" OnPreRender="GridView1_PreRender" OnDataBound="GridView1_DataBound">
+                                        enablepagingandcallback="false" PageSize="5" OnRowDataBound="GridView1_RowDataBound" OnPreRender="GridView1_PreRender" OnDataBound="GridView1_DataBound">
                                         <PagerStyle CssClass="pagination-ys" HorizontalAlign="Left" />
 
                                         <PagerSettings Mode="Numeric" FirstPageText="First" PreviousPageText="Previous" NextPageText="Next" LastPageText="Last" />
                                         <Columns>
-                                            <asp:BoundField ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="applicationName" HeaderText="Application Name">
+                                            <asp:BoundField ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="ApplicationName" HeaderText="Application Name">
                                                 <ItemStyle HorizontalAlign="Center" Width="200px"></ItemStyle>
                                             </asp:BoundField>
                                             <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="releaseID" HeaderText="Release Id">
                                                 <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
                                             </asp:BoundField>
-                                            <asp:BoundField ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="businessScenario" HeaderText="Business Scenario">
-                                                <ItemStyle HorizontalAlign="Center" Width="200px"></ItemStyle>
-                                            </asp:BoundField>
+
                                             <asp:BoundField ItemStyle-Width="200px" ItemStyle-HorizontalAlign="Center" DataField="transactionName" HeaderText="Transaction Name">
                                                 <ItemStyle HorizontalAlign="Center" Width="200px"></ItemStyle>
                                             </asp:BoundField>
@@ -206,54 +190,62 @@
                                             <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="SLA" HeaderText="SLA (Sec)">
                                                 <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
                                             </asp:BoundField>
-                                            <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="TPS" HeaderText="TPS">
+
+                                            <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="TPS" HeaderText="TPH/TPS">
+    <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
+</asp:BoundField>
+
+                                            <%--<asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="TotalSyncSLA" HeaderText="TotalSyncSLA">
+                        <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
+                    </asp:BoundField>
+                    <asp:BoundField ItemStyle-Width="150px" ItemStyle-HorizontalAlign="Center" DataField="MaxAsyncSLA" HeaderText="MaxAsyncSLA" >
+                        <ItemStyle HorizontalAlign="Center" Width="150px"></ItemStyle>
+                    </asp:BoundField>--%>
+
+                                            <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="backendCall" HeaderText="Backend Call" Visible="false">
                                                 <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
                                             </asp:BoundField>
-
-                                            <%--<asp:TemplateField HeaderText="SLA">
+                                            <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="Compare" HeaderText="Compare" Visible="false">
+                                                <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
+                                            </asp:BoundField>
+                                            <asp:TemplateField ItemStyle-Width="100px" HeaderText="Comparison">
                                                 <ItemTemplate>
-                                                    <%#Eval("SLA") %>
+                                                    <asp:Image ID="imgStatus" ToolTip="Shows high/low for comaprison" Height="18px" Width="18px" runat="server" />
                                                 </ItemTemplate>
-                                                <EditItemTemplate>
-                                                    <asp:TextBox ID="txtSLA" runat="server" Text='<%#Bind("SLA") %>'></asp:TextBox>
-                                                    <asp:RegularExpressionValidator ID="regexValidator" runat="server"
-                                                        ControlToValidate="txtSLA" ValidationExpression="^\d+$"
-                                                        ErrorMessage="Please enter a valid number." Display="Dynamic" />
-                                                </EditItemTemplate>
+                                            </asp:TemplateField>
+
+                                            <asp:TemplateField ItemStyle-Width="100px"  HeaderText="Details">
+                                                <ItemTemplate>
+                                                    <div class="tooltip12">
+                                                        <img src="Resources/images/info.png" alt="Info" width="20" height="20" />
+                                                        <div class="tooltiptext12">
+                                                            <%# Eval("backendCall") %>
+                                                        </div>
+                                                    </div>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+
+                                            <%--<asp:TemplateField ItemStyle-Width="100px">
+                                                <ItemTemplate>
+                                                    <asp:Panel ID="Panel1" runat="server">
+
+                                                        <asp:Image ID="Label4" runat="server" ImageUrl="~/Resources/images/user-solid.svg" Width="15px" Height="15px"></asp:Image>
+                                                    </asp:Panel>
+                                                    <cc1:HoverMenuExtender ID="HoverMenuExtender1" runat="server" PopupControlID="PopupMenu"
+                                                        TargetControlID="Panel1" PopupPosition="Bottom">
+                                                    </cc1:HoverMenuExtender>
+                                                    <asp:Panel ID="PopupMenu" runat="server" CssClass="modalPopup">
+                                                        <asp:Label ID="Label1" runat="server" Style="align-text: left" Text='<%# Eval("backendCall") %>'></asp:Label>
+                                                        <br />
+                                                        <hr />
+
+                                                    </asp:Panel>
+                                                </ItemTemplate>
                                             </asp:TemplateField>--%>
 
 
-                                            <asp:BoundField ItemStyle-Width="150px" ItemStyle-HorizontalAlign="Center" DataField="backendCall" HeaderText="Backend Calls" Visible="false">
-                                                <ItemStyle HorizontalAlign="Center" Width="150px"></ItemStyle>
-                                            </asp:BoundField>
-                                            <asp:BoundField ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" DataField="callType" HeaderText="Call Type" Visible="false">
-                                                <ItemStyle HorizontalAlign="Center" Width="100px"></ItemStyle>
-                                            </asp:BoundField>
-                                            <asp:CommandField ShowEditButton="True" Visible="true" HeaderText="Edit" />
-
-
-                                            <asp:TemplateField HeaderText="Delete">
-                                                <ItemTemplate>
-                                                    <asp:LinkButton ID="lnkDelete" CommandArgument='<%# Eval("ID") %>' OnClick="DeleteRecord" runat="server" Text="Delete"></asp:LinkButton>
-                                                    <cc1:ConfirmButtonExtender ID="cbe" runat="server" DisplayModalPopupID="mpe" TargetControlID="lnkDelete"></cc1:ConfirmButtonExtender>
-                                                    <cc1:ModalPopupExtender ID="mpe" runat="server" PopupControlID="pnlPopup" TargetControlID="lnkDelete" OkControlID="btnYes"
-                                                        CancelControlID="btnNo" BackgroundCssClass="modalBackground">
-                                                    </cc1:ModalPopupExtender>
-                                                    <asp:Panel ID="pnlPopup" runat="server" CssClass="modalPopup" Style="display: none">
-                                                        <div class="header">
-                                                            Confirmation
-                                                        </div>
-                                                        <div class="body">
-                                                            Do you want to delete this record?
-                                                        </div>
-                                                        <div class="footer" align="center">
-                                                            <asp:Button ID="btnYes" class="btn btn-primary btn-xs" runat="server" Text="Yes" />
-                                                            <asp:Button ID="btnNo" class="btn btn-primary btn-xs" runat="server" Text="No" />
-                                                        </div>
-                                                    </asp:Panel>
-                                                </ItemTemplate>
-                                            </asp:TemplateField>
                                         </Columns>
+
 
                                     </asp:GridView>
 
@@ -265,7 +257,6 @@
 
                 </ContentTemplate>
             </asp:UpdatePanel>
-
 
             <asp:Panel ID="Panl1" runat="server" CssClass="Popup" align="center" Style="display: none">
 
@@ -279,26 +270,58 @@
             </asp:Panel>
         </div>
     </div>
-    <script type="text/javascript">
-        // JavaScript function to show the alert popup
-        function showAlert(message) {
-            var alertPopup = document.getElementById('alertPopup');
-            var lblMessage = document.getElementById('<%= lblMessage.ClientID %>');
 
-            lblMessage.innerHTML = message;
-            alertPopup.style.display = 'block';
+     <div class="chart-container">
+        <canvas id="slaTpsChart"></canvas>
+    </div>
 
-            // Hide the popup after 3 seconds
-            //setTimeout(function () {
-            //    alertPopup.style.display = 'none';
-            //}, 3000);
-        }
+     <script>
+        // Dummy data for testing
+        var chartData = {
+            labels: ["Release1", "Release2", "Release3", "Release4", "Release5"],
+            datasets: [
+                {
+                    label: 'SLA',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false,
+                    data: [2, 3, 1.5, 2.8, 2.2]
+                },
+                {
+                    label: 'TPS',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2,
+                    fill: false,
+                    data: [100, 120, 90, 110, 105]
+                }
+            ]
+        };
 
-        // JavaScript function to hide the alert popup
-        function hideAlert() {
-            var alertPopup = document.getElementById('alertPopup');
-            alertPopup.style.display = 'none';
-        }
-    </script>
+        // Create chart
+        var ctx = document.getElementById('slaTpsChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Release ID'
+                        }
+                    }],
+                    y: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Values'
+                        }
+                    }]
+                }
+            }
+        });
+     </script>
+
 </asp:Content>
 
