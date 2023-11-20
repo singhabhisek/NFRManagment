@@ -1,3 +1,35 @@
+<script>
+    // Function to handle hover events and set a timeout to hide the HoverMenuExtender
+    function handleHover(event) {
+        var hoverMenuExtender = $find('<%= HoverMenuExtender1.ClientID %>');
+        var panel1 = document.getElementById('<%= Panel1.ClientID %>');
+
+        // Check if the cursor is entering the panel
+        if (event.type === 'mouseenter') {
+            // Show the HoverMenuExtender
+            hoverMenuExtender._popupBehavior.show();
+        } else if (event.type === 'mouseleave') {
+            // Set a timeout to hide the HoverMenuExtender after 2 seconds
+            setTimeout(function () {
+                hoverMenuExtender._popupBehavior.hide();
+            }, 2000);
+        }
+    }
+
+    // Attach hover event handlers to the Panel1
+    var panel1 = document.getElementById('<%= Panel1.ClientID %>');
+    panel1.addEventListener('mouseenter', handleHover);
+    panel1.addEventListener('mouseleave', handleHover);
+</script>
+
+        <asp:Panel ID="Panel1" runat="server" OnMouseOver="handleHover(event)" OnMouseOut="handleHover(event)">
+
+
+
+
+============================================
+
+
 <%@ Page Language="C#" AutoEventWireup="true" CodeBehind="YourPage.aspx.cs" Inherits="YourNamespace.YourPage" %>
 
 <!DOCTYPE html>
