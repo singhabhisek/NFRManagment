@@ -1,0 +1,46 @@
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="YourPage.aspx.cs" Inherits="YourNamespace.YourPage" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Modal Popup Example</title>
+    <script type="text/javascript">
+        // Function to show the modal pop-up and hide it after 2 seconds
+        function showModalPopup() {
+            // Show the modal pop-up
+            $find('<%=ModalPopupExtender1.ClientID %>').show();
+
+            // Set a timeout to hide the modal pop-up after 2000 milliseconds (2 seconds)
+            setTimeout(function () {
+                $find('<%=ModalPopupExtender1.ClientID %>').hide();
+            }, 2000);
+        }
+    </script>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <asp:ScriptManager runat="server"></asp:ScriptManager>
+        
+        <!-- Your content goes here -->
+
+        <!-- Modal Popup Extender -->
+        <ajaxToolkit:ModalPopupExtender ID="ModalPopupExtender1" runat="server"
+            TargetControlID="btnShowModalPopup" PopupControlID="Panel1"
+            BackgroundCssClass="modalBackground" DropShadow="true">
+        </ajaxToolkit:ModalPopupExtender>
+
+        <!-- Button to trigger the modal pop-up -->
+        <asp:Button ID="btnShowModalPopup" runat="server" Text="Show Modal Popup"
+            OnClientClick="showModalPopup(); return false;" />
+
+        <!-- Panel containing the content of the modal pop-up -->
+        <asp:Panel ID="Panel1" runat="server" CssClass="modalPopup" style="display: none;">
+            <!-- Your modal pop-up content goes here -->
+            <div>
+                This is your modal pop-up content.
+            </div>
+        </asp:Panel>
+    </form>
+</body>
+</html>
