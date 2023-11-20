@@ -2,72 +2,76 @@ private void ExportToExcel(GridView gridView)
     {
         Response.Clear();
         Response.Buffer = true;
-        Response.AddHeader("content-disposition", "attachment;filename=ExportedData.xlsx");
+        Response.AddHeader("content-disposition", "attachment;filename=ExportedData.xls");
         Response.Charset = "";
-        Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        Response.ContentType = "application/vnd.ms-excel";
 
-        using (var package = new ExcelPackage())
+        using (StringWriter sw = new StringWriter())
         {
-            var worksheet = package.Workbook.Worksheets.Add("Sheet1");
-
-            int columnIndex = 1;
-
-            // Export header row
-            foreach (TableCell cell in gridView.HeaderRow.Cells)
+            using (HtmlTextWriter htw = new HtmlTextWriter(sw))
             {
-                // Skip cells with buttons, HoverExtender, or panels
-                if (!ContainsInvalidControls(cell))
-                {
-                    worksheet.Cells[1, columnIndex].Value = cell.Text;
-                    columnIndex++;
-                }
-            }
+                // Create a table to hold the grid
+                Table table = new Table();
 
-            // Export data rows
-            int rowIndex = 2;
-            foreach (GridViewRow row in gridView.Rows)
-            {
-                columnIndex = 1;
-
-                foreach (TableCell cell in row.Cells)
+                // Export header row
+                if (gridView.HeaderRow != null)
                 {
-                    // Skip cells with buttons, HoverExtender, or panels
-                    if (!ContainsInvalidControls(cell))
-                    {
-                        worksheet.Cells[rowIndex, columnIndex].Value = cell.Text;
-                        columnIndex++;
-                    }
+                    PrepareControlForExport(gridView.HeaderRow);
+                    table.Rows.Add(gridView.HeaderRow);
                 }
 
-                rowIndex++;
-            }
+                // Export data rows
+                foreach (GridViewRow row in gridView.Rows)
+                {
+                    PrepareControlForExport(row);
+                    table.Rows.Add(row);
+                }
 
-            Response.BinaryWrite(package.GetAsByteArray());
-            Response.End();
+                // Render the table into the htmlwriter
+                table.RenderControl(htw);
+
+                // Write the html to the response
+                Response.Write(sw.ToString());
+                Response.End();
+            }
         }
     }
 
-    private bool ContainsInvalidControls(Control parent)
+    private void PrepareControlForExport(Control control)
     {
-        foreach (Control control in parent.Controls)
+        foreach (Control currentControl in control.Controls)
         {
-            if (control is LinkButton || control is Button || control is Panel || control is AjaxControlToolkit.HoverExtender)
+            if (currentControl is LinkButton)
             {
-                return true;
+                control.Controls.Remove(currentControl);
+            }
+            else if (currentControl is ImageButton)
+            {
+                control.Controls.Remove(currentControl);
+            }
+            else if (currentControl is HyperLink)
+            {
+                control.Controls.Remove(currentControl);
+            }
+            else if (currentControl is DropDownList)
+            {
+                control.Controls.Remove(currentControl);
+            }
+            else if (currentControl is CheckBox)
+            {
+                control.Controls.Remove(currentControl);
+            }
+            else if (currentControl is HiddenField)
+            {
+                control.Controls.Remove(currentControl);
             }
 
-            if (control.Controls.Count > 0)
+            if (currentControl.Controls.Count > 0)
             {
-                if (ContainsInvalidControls(control))
-                {
-                    return true;
-                }
+                PrepareControlForExport(currentControl);
             }
         }
-
-        return false;
     }
-
 
 
 ===================
