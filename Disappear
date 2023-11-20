@@ -1,3 +1,33 @@
+private void PrepareControlForExport(Control control)
+{
+    List<Control> controlsToRemove = new List<Control>();
+
+    foreach (Control currentControl in control.Controls)
+    {
+        if (currentControl is LinkButton || currentControl is ImageButton ||
+            currentControl is HyperLink || currentControl is DropDownList ||
+            currentControl is CheckBox || currentControl is HiddenField)
+        {
+            controlsToRemove.Add(currentControl);
+        }
+
+        if (currentControl.Controls.Count > 0)
+        {
+            PrepareControlForExport(currentControl);
+        }
+    }
+
+    // Remove controls after iteration
+    foreach (Control controlToRemove in controlsToRemove)
+    {
+        control.Controls.Remove(controlToRemove);
+    }
+}
+
+
+
+====
+
 private void ExportToExcel(GridView gridView)
     {
         Response.Clear();
