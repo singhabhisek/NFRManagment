@@ -1,3 +1,80 @@
+private void ExportToExcel(GridView gridView)
+    {
+        Response.Clear();
+        Response.Buffer = true;
+        Response.AddHeader("content-disposition", "attachment;filename=ExportedData.xlsx");
+        Response.Charset = "";
+        Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+        using (var package = new ExcelPackage())
+        {
+            var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+
+            int columnIndex = 1;
+
+            // Export header row
+            foreach (TableCell cell in gridView.HeaderRow.Cells)
+            {
+                // Skip cells with buttons, HoverExtender, or panels
+                if (!ContainsInvalidControls(cell))
+                {
+                    worksheet.Cells[1, columnIndex].Value = cell.Text;
+                    columnIndex++;
+                }
+            }
+
+            // Export data rows
+            int rowIndex = 2;
+            foreach (GridViewRow row in gridView.Rows)
+            {
+                columnIndex = 1;
+
+                foreach (TableCell cell in row.Cells)
+                {
+                    // Skip cells with buttons, HoverExtender, or panels
+                    if (!ContainsInvalidControls(cell))
+                    {
+                        worksheet.Cells[rowIndex, columnIndex].Value = cell.Text;
+                        columnIndex++;
+                    }
+                }
+
+                rowIndex++;
+            }
+
+            Response.BinaryWrite(package.GetAsByteArray());
+            Response.End();
+        }
+    }
+
+    private bool ContainsInvalidControls(Control parent)
+    {
+        foreach (Control control in parent.Controls)
+        {
+            if (control is LinkButton || control is Button || control is Panel || control is AjaxControlToolkit.HoverExtender)
+            {
+                return true;
+            }
+
+            if (control.Controls.Count > 0)
+            {
+                if (ContainsInvalidControls(control))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+
+===================
+
+
+
+
 <script>
     // Function to handle hover events and set a timeout to hide the HoverMenuExtender
     function handleHover(event) {
