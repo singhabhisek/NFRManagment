@@ -1,3 +1,79 @@
+public static void ExportGridToExcel(GridView gridView)
+{
+    string FileName = "ExportExcel_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xls";
+
+    HttpContext.Current.Response.Clear();
+    HttpContext.Current.Response.Buffer = true;
+    HttpContext.Current.Response.AddHeader("content-disposition", "attachment;filename=" + FileName);
+    HttpContext.Current.Response.Charset = "";
+    HttpContext.Current.Response.ContentType = "application/vnd.ms-excel";
+
+    using (StringWriter sw = new StringWriter())
+    {
+        HtmlTextWriter hw = new HtmlTextWriter(sw);
+
+        // To Export all pages
+        gridView.AllowPaging = false;
+
+        gridView.HeaderRow.BackColor = Color.White;
+        foreach (TableCell cell in gridView.HeaderRow.Cells)
+        {
+            cell.BackColor = gridView.HeaderStyle.BackColor;
+        }
+
+        foreach (GridViewRow row in gridView.Rows)
+        {
+            row.BackColor = Color.White;
+            
+            foreach (TableCell cell in row.Cells)
+            {
+                // Skip rendering if the cell contains ModalPopupExtender or ConfirmBoxExtender
+                bool skipCell = false;
+                
+                foreach (Control control in cell.Controls)
+                {
+                    if (control is ModalPopupExtender || control is ConfirmBoxExtender)
+                    {
+                        skipCell = true;
+                        break;
+                    }
+                }
+
+                if (!skipCell)
+                {
+                    if (row.RowIndex % 2 == 0)
+                    {
+                        cell.BackColor = gridView.AlternatingRowStyle.BackColor;
+                    }
+                    else
+                    {
+                        cell.BackColor = gridView.RowStyle.BackColor;
+                    }
+                    cell.CssClass = "textmode";
+                    cell.RenderControl(hw);
+                }
+            }
+            
+            // Add a line break after each row
+            hw.Write("<br/>");
+        }
+
+        // Style to format numbers to string
+        string style = @"<style> .textmode { } </style>";
+        HttpContext.Current.Response.Write(style);
+        HttpContext.Current.Response.Output.Write(sw.ToString());
+        HttpContext.Current.Response.Flush();
+        HttpContext.Current.Response.End();
+    }
+}
+
+
+
+==========================
+
+
+
+
 private void PrepareControlForExport(Control control)
 {
     List<Control> controlsToRemove = new List<Control>();
